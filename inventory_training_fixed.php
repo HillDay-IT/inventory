@@ -317,102 +317,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Inventory Training Application</title>
+    <title>Inventory Application</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>Inventory Training Application</h1>
-
-    <?php if ($message !== ''): ?>
+    <header class="page-header">
+    <h1>Inventory Application</h1>
+</header>
+   <?php if ($message !== ''): ?>
+    <div class="message-box">
         <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
+    </div>
+<?php endif; ?>
 
-    <h2>Add Inventory Item</h2>
+    
 
-    <p>
-        This file intentionally does not build the form for you yet.
-        Your job is to create the form section and make each field's
-        <code>name</code> attribute match the <code>$_POST</code> keys
-        used at the top of this file.
-    </p>
-
-    <h2>How db.php Fits In</h2>
-
-    <p>
-        The line below loads the database connection file:
-    </p>
-
-    <pre>require 'db.php';</pre>
-
-    <p>
-        Inside <code>db.php</code>, PHP creates a variable called
-        <code>$conn</code>. That variable represents the open connection
-        to MySQL.
-    </p>
-
-    <pre>$conn = new mysqli($host, $username, $password, $database);</pre>
-
-    <p>
-        After <code>require 'db.php';</code> runs, this file can use
-        <code>$conn</code> to prepare and run SQL commands.
-    </p>
-
-    <h2>Using the Connection</h2>
-
-    <p>
-        This line uses the database connection to prepare the SQL command:
-    </p>
-
-    <pre>$statement = $conn-&gt;prepare($sql);</pre>
-
-    <p>
-        Plain English: use the <code>prepare()</code> method that belongs
-        to the <code>$conn</code> database connection, and give it the
-        SQL string stored in <code>$sql</code>.
-    </p>
-
-    <h2>Form Requirements</h2>
-
-    <p>Create a form that submits back to this page using POST:</p>
-
-    <pre>&lt;form method="post" action=""&gt;</pre>
-
-    <p>Your form should include fields with these exact names:</p>
-
-    <ul>
-        <li><code>category_id</code> for the inventory category.</li>
-        <li><code>inv_name</code> for the equipment name.</li>
-        <li><code>inv_ability</code> for whether the item works.</li>
-        <li><code>inv_quantity</code> for the item count.</li>
-        <li><code>inv_condition</code> for the item's condition.</li>
-        <li><code>inv_taggable</code> for whether it can receive an asset tag.</li>
-        <li><code>inv_loose</code> for whether it is a loose item.</li>
-        <li><code>inv_notes</code> for extra details.</li>
-        <li><code>inv_image</code> for an image URL.</li>
-    </ul>
-
-    <h2>Data Path</h2>
-
-    <p>Follow one value all the way through the file:</p>
-
-    <ol>
-        <li>The form field uses <code>name="inv_name"</code>.</li>
-        <li>PHP receives that value as <code>$_POST['inv_name']</code>.</li>
-        <li>The value is stored in <code>$inventoryName</code>.</li>
-        <li><code>bind_param()</code> attaches <code>$inventoryName</code> to the second <code>?</code>.</li>
-        <li><code>execute()</code> sends the prepared statement to MySQL.</li>
-        <li>MySQL stores the value in the <code>inv_name</code> column.</li>
-    </ol>
-
-    <h2>Student Task</h2>
-
-    <p>
-        Build the missing form below this section. After the form is built,
-        submit a test item and confirm that the success message appears.
-    </p>
+    <div class="content-box">
+    <h2>Enter Inventory Item</h2>
 
     <form method="POST" action="">
-
+<div class="typing">
         <label for="category_id">Category ID #:</label>
         <input
             type="number"
@@ -424,19 +349,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             required
             value="<?php echo htmlspecialchars($category_id === "Not Submitted" ? "" : $category_id); ?>"
         >
-
+    </div>
         <br><br>
-
+<div class="typing">
         <label for="inv_name">Item Name:</label>
         <input
             type="text"
             id="inv_name"
             name="inv_name"
+             class="typing"
             value="<?php echo htmlspecialchars($inventoryName === "Not Submitted" ? "" : $inventoryName); ?>"
         >
-
+</div>
         <br><br>
-
+<div class="select">
         <label for="inv_ability">Working or not?:</label>
 
         <select id="inv_ability" name="inv_ability">
@@ -462,9 +388,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Not working
             </option>
         </select>
-
+    </div>
         <br><br>
-
+<div class="typing">
         <label for="inv_quantity">Quantity:</label>
         <input
             type="number"
@@ -472,11 +398,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             name="inv_quantity"
             step="1"
             min="0"
+             class="typing"
             value="<?php echo htmlspecialchars($inventoryQuantity === "Not Submitted" ? "" : $inventoryQuantity); ?>"
         >
-
+</div>
         <br><br>
-
+<div class="select">
         <label for="inv_condition">Item Condition:</label>
 
         <select id="inv_condition" name="inv_condition">
@@ -502,9 +429,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 New
             </option>
         </select>
-
+    </div>
         <br><br>
-
+<div class="drop">
         <label>Is it taggable?</label>
         <br>
 
@@ -525,9 +452,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($inventoryTaggable === "No") { echo "checked"; } ?>
         >
         No
-
+    </div>
         <br><br>
-
+<div class="drop">
         <label>Is it loose?</label>
         <br>
 
@@ -548,9 +475,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($inventoryLoose === "No") { echo "checked"; } ?>
         >
         No
-
+    </div>
         <br><br>
-
+<div class="typing">
         <label for="inv_notes">Notes:</label>
         <br>
 
@@ -559,24 +486,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             name="inv_notes"
             rows="5"
             cols="50"
+             class="typing"
         ><?php echo htmlspecialchars($inventoryNotes === "None" ? "" : $inventoryNotes); ?></textarea>
-
+</div>
         <br><br>
-
+<div class="typing">
         <label for="inv_image">Image URL:</label>
         <input
             type="url"
             id="inv_image"
             name="inv_image"
+             class="typing"
             placeholder="https://example.com/image.jpg"
             value="<?php echo htmlspecialchars($inventoryImage === "Not Submitted" ? "" : $inventoryImage); ?>"
         >
-
+</div>
         <br><br>
 
         <button type="submit">Add Item</button>
 
-    </form>
+      </form>
+</div>
+
+<div class="content-box submitted-box">
 
     <h2>Submitted Values</h2>
 
@@ -584,20 +516,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <p>Category ID #: <?php echo htmlspecialchars((string)$category_id); ?></p>
 
-    <p>Working or not?: <?php echo htmlspecialchars($inventoryStatus); ?></p>
+    <p>Ability: <?php echo htmlspecialchars($inventoryStatus); ?></p>
 
     <p>Quantity: <?php echo htmlspecialchars((string)$inventoryQuantity); ?></p>
 
     <p>Condition: <?php echo htmlspecialchars($inventoryCondition); ?></p>
 
-    <p>Taggable?: <?php echo htmlspecialchars($inventoryTaggable); ?></p>
+    <p>Taggability:<?php echo htmlspecialchars($inventoryTaggable); ?></p>
 
     <p>Notes: <?php echo htmlspecialchars($inventoryNotes); ?></p>
 
-    <p>Loose?: <?php echo htmlspecialchars($inventoryLoose); ?></p>
+    <p>Loose: <?php echo htmlspecialchars($inventoryLoose); ?></p>
 
-    <p>Image: <?php echo htmlspecialchars($inventoryImage); ?></p>
+    
+<p>Image:</p>
 
+<?php if (
+    filter_var($inventoryImage, FILTER_VALIDATE_URL) &&
+    in_array(parse_url($inventoryImage, PHP_URL_SCHEME), ['http', 'https'], true)
+) { ?>
+    <img
+        src="<?php echo htmlspecialchars($inventoryImage); ?>"
+        alt="Inventory item"
+        width="200"
+    >
+<?php } else { ?>
+    <p>No valid image URL provided.</p>
+<?php } ?>
+
+   </div>
     <?php if (count($errors) > 0) { ?>
 
         <h3>Error Log:</h3>
