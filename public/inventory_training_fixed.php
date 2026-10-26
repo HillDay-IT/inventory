@@ -10,6 +10,8 @@
 | HTML Form
 |    ↓
 | $_POST
+
+
 |    ↓
 | PHP Variables
 |    ↓
