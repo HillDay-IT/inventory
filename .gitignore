@@ -1,17 +1,32 @@
-# Local database credentials
-/db.php
+# Database credentials
+/inventory/db.php
+/public/db.php
 
-# Environment-specific configuration
+# Environment files
 .env
 .env.*
 !.env.example
 
-# Editor and OS files
+# cPanel and server configuration
+/.cpanel/
+/cgi-bin/
+/.htaccess
+/.lastlogin
+/.user.ini
+/php.ini
+
+# Temporary Git metadata backup
+/.git-unused-backup/
+
+# Database backups
+*.pre-merge.backup
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Local development files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-
-# Temporary files
-*.log
-*.tmp
