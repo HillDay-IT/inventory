@@ -158,9 +158,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($inventoryQuantity !== "" && (!ctype_digit((string)$inventoryQuantity) || (int)$inventoryQuantity < 0)) {
         $errors[] = "Quantity must be a whole number.";
     }
-if (!in_array($category_id, $identifier, true)) {
-        $errors[] = "Please choose an id.";
-    }
+$allowedCategoryIds = ["1", "2", "3"];
+
+if (!in_array($category_id, $allowedCategoryIds, true)) {
+    $errors[] = "Please choose a valid category.";
+}
     if (!in_array($inventoryStatus, $allowedAbility, true)) {
         $errors[] = "Please choose a valid inventory status.";
     }
@@ -338,39 +340,30 @@ if (!in_array($category_id, $identifier, true)) {
     <h2>Enter Inventory Item</h2>
 
     <form method="POST" action="">
+
 <div class="select">
-        <label for="category_id">Category ID #:</label>
-        <select
-            type="number"
-            id="category_id"
-            name="category_id"
-            min="1"
-            max="3"
-            step="1"
-            required>
-            <option value="">Choose an identifier</option>
+    <label for="category_id">Category ID #:</label>
 
-            <option value="1(Camera)"
-                <?php if ($category_id === "1(Camera") { echo "selected"; } ?>>
-               1(Camera)
-            </option>
+    <select id="category_id" name="category_id" required>
+        <option value="">Choose a category</option>
 
-            <option value="2(AV)"
-                <?php if ($category_id === "2(AV)") { echo "selected"; } ?>>
-               2(AV)
-            </option>
+        <option value="1"
+            <?php if ($category_id === "1") echo "selected"; ?>>
+            1 (Camera)
+        </option>
 
-            <option value="3(IT)"
-                <?php if ($category_id === "3(IT)") { echo "selected"; } ?>>
-                3(IT)
-            </option>
+        <option value="2"
+            <?php if ($category_id === "2") echo "selected"; ?>>
+            2 (AV)
+        </option>
 
+        <option value="3"
+            <?php if ($category_id === "3") echo "selected"; ?>>
+            3 (IT)
+        </option>
+    </select>
+</div>
 
-
-
-
-
-    </div>
         <br><br>
 <div class="typing">
         <label for="inv_name">Item Name:</label>
