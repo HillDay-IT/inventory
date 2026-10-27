@@ -129,7 +129,19 @@ function isValidImageUrl($url)
             <p>No inventory items have been collected yet.</p>
         <?php else: ?>
             <div class="table-wrapper">
-                <table>
+                <table class="inventory-table">
+                    <colgroup>
+                        <col class="column-category">
+                        <col class="column-name">
+                        <col class="column-ability">
+                        <col class="column-quantity">
+                        <col class="column-condition">
+                        <col class="column-taggable">
+                        <col class="column-loose">
+                        <col class="column-notes">
+                        <col class="column-image">
+                        <col class="column-actions">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th scope="col">Category</th>
@@ -157,22 +169,26 @@ function isValidImageUrl($url)
                                 <td class="notes-cell"><?php echo nl2br(displayValue($item['inv_notes'])); ?></td>
                                 <td>
                                     <?php if (isValidImageUrl($item['inv_image'])): ?>
-                                        <a
+                                        <button
                                             class="table-button image-button"
-                                            href="<?php echo displayValue($item['inv_image']); ?>"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >View Image</a>
+                                            type="button"
+                                            data-image-url="<?php echo displayValue($item['inv_image']); ?>"
+                                            onclick="window.open(this.dataset.imageUrl, '_blank', 'noopener,noreferrer');"
+                                        >View Image</button>
                                     <?php else: ?>
                                         No image
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="row-actions">
-                                        <a
-                                            class="table-button"
-                                            href="inventory-edit.php?id=<?php echo rawurlencode((string)$item['row_id']); ?>"
-                                        >Update</a>
+                                        <form class="action-form" method="get" action="inventory-edit.php">
+                                            <input
+                                                type="hidden"
+                                                name="id"
+                                                value="<?php echo displayValue($item['row_id']); ?>"
+                                            >
+                                            <button class="table-button" type="submit">Update</button>
+                                        </form>
                                         <form
                                             class="delete-form"
                                             method="post"

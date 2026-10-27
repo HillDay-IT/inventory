@@ -176,28 +176,72 @@ max-width: 800px;
     overflow-x: auto;
 }
 
-table {
+.inventory-table {
     width: 100%;
+    min-width: 1340px;
+    table-layout: fixed;
     border-collapse: collapse;
+    border: 2px solid rgb(95, 115, 150);
     font-family: Arial, sans-serif;
 }
 
-th,
-td {
+.inventory-table th,
+.inventory-table td {
     padding: 12px;
-    border: 1px solid rgb(205, 215, 235);
+    border: 1px solid rgb(125, 145, 180);
     text-align: left;
     vertical-align: top;
+    overflow-wrap: anywhere;
 }
 
-th {
+.inventory-table th {
     color: white;
     background-color: cornflowerblue;
     white-space: nowrap;
 }
 
-tbody tr:nth-child(even) {
+.inventory-table tbody tr:nth-child(even) {
     background-color: rgb(248, 250, 255);
+}
+
+.column-category {
+    width: 90px;
+}
+
+.column-name {
+    width: 170px;
+}
+
+.column-ability {
+    width: 140px;
+}
+
+.column-quantity {
+    width: 90px;
+}
+
+.column-condition {
+    width: 120px;
+}
+
+.column-taggable {
+    width: 100px;
+}
+
+.column-loose {
+    width: 90px;
+}
+
+.column-notes {
+    width: 240px;
+}
+
+.column-image {
+    width: 120px;
+}
+
+.column-actions {
+    width: 180px;
 }
 
 .notes-cell {
@@ -228,6 +272,7 @@ tbody tr:nth-child(even) {
     font: bold 14px Arial, sans-serif;
     text-decoration: none;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 .image-button {
@@ -240,10 +285,16 @@ tbody tr:nth-child(even) {
     gap: 8px;
 }
 
+.action-form,
 .delete-form {
     padding: 0;
     margin: 0;
     background: transparent;
+}
+
+.action-form input,
+.delete-form input {
+    margin: 0;
 }
 
 .delete-button {
