@@ -1,19 +1,80 @@
 <?php
 
+session_start();
+
 require 'db.php';
 
 $inventoryItems = [];
 $errorMessage = '';
+$statusMessage = '';
 
-$sql = "SELECT category_id, inv_name, inv_ability, inv_quantity, inv_condition,
-        inv_taggable, inv_notes, inv_loose, inv_image
-    FROM inv
-    ORDER BY inv_name ASC";
+if (!isset($_SESSION['inventory_csrf_token'])) {
+    $_SESSION['inventory_csrf_token'] = bin2hex(random_bytes(32));
+}
 
-$result = $conn->query($sql);
+$primaryKey = '';
+$keyResult = $conn->query("SHOW KEYS FROM inv WHERE Key_name = 'PRIMARY'");
+
+if ($keyResult !== false && ($keyRow = $keyResult->fetch_assoc())) {
+    $candidateKey = $keyRow['Column_name'] ?? '';
+
+    if (preg_match('/^[A-Za-z0-9_]+$/', $candidateKey)) {
+        $primaryKey = $candidateKey;
+    }
+}
+
+if ($keyResult !== false) {
+    $keyResult->free();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
+    $submittedToken = $_POST['csrf_token'] ?? '';
+    $rowId = $_POST['row_id'] ?? '';
+
+    if (!hash_equals($_SESSION['inventory_csrf_token'], $submittedToken)) {
+        $errorMessage = 'The delete request could not be verified.';
+    } elseif ($primaryKey === '' || $rowId === '') {
+        $errorMessage = 'The inventory item could not be identified.';
+    } else {
+        $deleteSql = "DELETE FROM inv WHERE `{$primaryKey}` = ? LIMIT 1";
+        $deleteStatement = $conn->prepare($deleteSql);
+
+        if ($deleteStatement === false) {
+            $errorMessage = 'The delete request could not be prepared.';
+        } else {
+            $deleteStatement->bind_param('s', $rowId);
+
+            if ($deleteStatement->execute()) {
+                $deleteStatement->close();
+                header('Location: inventory-table.php?deleted=1');
+                exit;
+            }
+
+            $errorMessage = 'The inventory item could not be deleted.';
+            $deleteStatement->close();
+        }
+    }
+}
+
+if (isset($_GET['deleted'])) {
+    $statusMessage = 'Inventory item deleted.';
+} elseif (isset($_GET['updated'])) {
+    $statusMessage = 'Inventory item updated.';
+}
+
+$sql = $primaryKey === ''
+    ? ''
+    : "SELECT `{$primaryKey}` AS row_id, category_id, inv_name, inv_ability, inv_quantity,
+            inv_condition, inv_taggable, inv_notes, inv_loose, inv_image
+        FROM inv
+        ORDER BY inv_name ASC";
+
+$result = $sql === '' ? false : $conn->query($sql);
 
 if ($result === false) {
-    $errorMessage = 'The inventory could not be loaded.';
+    if ($errorMessage === '') {
+        $errorMessage = 'The inventory could not be loaded because the table needs a primary key.';
+    }
 } else {
     while ($row = $result->fetch_assoc()) {
         $inventoryItems[] = $row;
@@ -58,6 +119,10 @@ function isValidImageUrl($url)
             <a class="page-link" href="inventory_training_fixed.php">Add Inventory Item</a>
         </div>
 
+        <?php if ($statusMessage !== ''): ?>
+            <p class="status-message"><?php echo displayValue($statusMessage); ?></p>
+        <?php endif; ?>
+
         <?php if ($errorMessage !== ''): ?>
             <p class="error-message"><?php echo displayValue($errorMessage); ?></p>
         <?php elseif (count($inventoryItems) === 0): ?>
@@ -76,6 +141,7 @@ function isValidImageUrl($url)
                             <th scope="col">Loose</th>
                             <th scope="col">Notes</th>
                             <th scope="col">Image</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,15 +157,42 @@ function isValidImageUrl($url)
                                 <td class="notes-cell"><?php echo nl2br(displayValue($item['inv_notes'])); ?></td>
                                 <td>
                                     <?php if (isValidImageUrl($item['inv_image'])): ?>
-                                        <img
-                                            class="inventory-image"
-                                            src="<?php echo displayValue($item['inv_image']); ?>"
-                                            alt="<?php echo displayValue($item['inv_name']); ?>"
-                                            loading="lazy"
-                                        >
+                                        <a
+                                            class="table-button image-button"
+                                            href="<?php echo displayValue($item['inv_image']); ?>"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >View Image</a>
                                     <?php else: ?>
                                         No image
                                     <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a
+                                            class="table-button"
+                                            href="inventory-edit.php?id=<?php echo rawurlencode((string)$item['row_id']); ?>"
+                                        >Update</a>
+                                        <form
+                                            class="delete-form"
+                                            method="post"
+                                            action="inventory-table.php"
+                                            onsubmit="return confirm('Delete this inventory item?');"
+                                        >
+                                            <input type="hidden" name="action" value="delete">
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="<?php echo displayValue($_SESSION['inventory_csrf_token']); ?>"
+                                            >
+                                            <input
+                                                type="hidden"
+                                                name="row_id"
+                                                value="<?php echo displayValue($item['row_id']); ?>"
+                                            >
+                                            <button class="delete-button" type="submit">Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

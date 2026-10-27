@@ -205,16 +205,96 @@ tbody tr:nth-child(even) {
     overflow-wrap: anywhere;
 }
 
-.inventory-image {
-    display: block;
-    width: 100px;
-    height: 75px;
-    border-radius: 6px;
-    object-fit: cover;
-}
-
 .error-message {
     color: rgb(175, 25, 25);
+}
+
+.status-message {
+    padding: 12px;
+    color: rgb(25, 105, 45);
+    background-color: rgb(230, 255, 235);
+    border-radius: 8px;
+}
+
+.table-button,
+.delete-button,
+.cancel-link {
+    display: inline-block;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    color: white;
+    background-color: rgb(31, 90, 253);
+    font: bold 14px Arial, sans-serif;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.image-button {
+    background-color: rgb(65, 115, 180);
+}
+
+.row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.delete-form {
+    padding: 0;
+    margin: 0;
+    background: transparent;
+}
+
+.delete-button {
+    background-color: rgb(190, 45, 45);
+}
+
+.edit-field {
+    margin-bottom: 25px;
+}
+
+.edit-field label {
+    display: block;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin-bottom: 8px;
+}
+
+.choice-group {
+    margin: 0 0 25px;
+    padding: 15px;
+    border: 1px solid rgb(205, 215, 235);
+    border-radius: 8px;
+}
+
+.choice-group legend {
+    color: cornflowerblue;
+    font-size: 130%;
+    font-weight: bold;
+}
+
+.choice-group input {
+    width: auto;
+    margin: 10px 5px 0 15px;
+}
+
+.typing textarea {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.cancel-link {
+    background-color: rgb(95, 105, 120);
 }
 
 @media (max-width: 600px) {
