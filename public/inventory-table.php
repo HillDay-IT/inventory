@@ -106,6 +106,10 @@ function isValidImageUrl($url)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Table</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -129,7 +133,7 @@ function isValidImageUrl($url)
             <p>No inventory items have been collected yet.</p>
         <?php else: ?>
             <div class="table-wrapper">
-                <table class="inventory-table">
+                <table class="table table-striped table-bordered align-middle w-100 inventory-table">
                     <colgroup>
                         <col class="column-category">
                         <col class="column-name">
@@ -142,7 +146,7 @@ function isValidImageUrl($url)
                         <col class="column-image">
                         <col class="column-actions">
                     </colgroup>
-                    <thead>
+                    <thead class="table-dark">
                         <tr>
                             <th scope="col">Category</th>
                             <th scope="col">Item Name</th>
@@ -170,7 +174,7 @@ function isValidImageUrl($url)
                                 <td>
                                     <?php if (isValidImageUrl($item['inv_image'])): ?>
                                         <button
-                                            class="table-button image-button"
+                                            class="btn btn-sm btn-primary inventory-action-button"
                                             type="button"
                                             data-image-url="<?php echo displayValue($item['inv_image']); ?>"
                                             onclick="window.open(this.dataset.imageUrl, '_blank', 'noopener,noreferrer');"
@@ -187,7 +191,10 @@ function isValidImageUrl($url)
                                                 name="id"
                                                 value="<?php echo displayValue($item['row_id']); ?>"
                                             >
-                                            <button class="table-button" type="submit">Update</button>
+                                            <button
+                                                class="btn btn-sm btn-secondary inventory-action-button"
+                                                type="submit"
+                                            >Update</button>
                                         </form>
                                         <form
                                             class="delete-form"
@@ -206,7 +213,10 @@ function isValidImageUrl($url)
                                                 name="row_id"
                                                 value="<?php echo displayValue($item['row_id']); ?>"
                                             >
-                                            <button class="delete-button" type="submit">Delete</button>
+                                            <button
+                                                class="btn btn-sm btn-danger inventory-action-button"
+                                                type="submit"
+                                            >Delete</button>
                                         </form>
                                     </div>
                                 </td>
