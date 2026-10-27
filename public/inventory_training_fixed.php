@@ -368,7 +368,7 @@ if (!in_array($category_id, $identifier, true)) {
 
 
 
-            
+
 
     </div>
         <br><br>
@@ -535,7 +535,7 @@ if (!in_array($category_id, $identifier, true)) {
 
     <p>Item Name: <?php echo htmlspecialchars($inventoryName); ?></p>
 
-    <p>Category ID #: <?php echo htmlspecialchars((string)$category_id); ?></p>
+    <p>Category ID #: <?php echo htmlspecialchars($category_id); ?></p>
 
     <p>Ability: <?php echo htmlspecialchars($inventoryStatus); ?></p>
 
