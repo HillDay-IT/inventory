@@ -2,7 +2,7 @@
 
 session_start();
 
-require 'db.php';
+require __DIR__ . '/../config/db.php';
 
 $inventoryItems = [];
 $errorMessage = '';
@@ -120,7 +120,7 @@ function isValidImageUrl($url)
     <main class="content-box inventory-list">
         <div class="table-heading">
             <h2>Collected Inventory</h2>
-            <a class="page-link" href="inventory_training_fixed.php">Add Inventory Item</a>
+            <a class="page-link" href="inventory-form.php">Add Inventory Item</a>
         </div>
 
         <?php if ($statusMessage !== ''): ?>

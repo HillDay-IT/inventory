@@ -1,0 +1,14 @@
+<?php
+
+$host = 'localhost';
+$username = 'database_user';
+$password = 'database_password';
+$database = 'database_name';
+
+$conn = new mysqli($host, $username, $password, $database);
+
+if ($conn->connect_error) {
+    throw new RuntimeException('Database connection failed.');
+}
+
+$conn->set_charset('utf8mb4');

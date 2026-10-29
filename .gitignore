@@ -1,6 +1,7 @@
 # Database credentials
 /inventory/db.php
 /public/db.php
+/config/db.php
 
 # Environment files
 .env

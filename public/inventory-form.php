@@ -10,6 +10,8 @@
 | HTML Form
 |    ↓
 | $_POST
+
+
 |    ↓
 | PHP Variables
 |    ↓
@@ -37,11 +39,16 @@
 | After this line runs, we can use $conn inside this file.
 */
 
-require 'db.php';
+require __DIR__ . '/../config/db.php';
 
 
 // This variable will eventually hold a success or failure message.
 $message = '';
+$identifier = [
+    "1(Camera)",
+    "2(AV)",
+    "3(IT)"
+];
 
 $allowedAbility = [
     "Working",
@@ -140,10 +147,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Inventory name is required.";
     }
 
-    if ($category_id === "") {
-        $errors[] = "Category ID is required.";
-    }
-
     if ($inventoryStatus === "") {
         $errors[] = "Status is required.";
     }
@@ -152,14 +155,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Quantity required.";
     }
 
-    if ($category_id !== "" && (!ctype_digit((string)$category_id) || (int)$category_id < 1 || (int)$category_id > 3)) {
-        $errors[] = "Category ID must be a whole number from 1 to 3.";
-    }
-
     if ($inventoryQuantity !== "" && (!ctype_digit((string)$inventoryQuantity) || (int)$inventoryQuantity < 0)) {
         $errors[] = "Quantity must be a whole number.";
     }
+$allowedCategoryIds = ["1", "2", "3"];
 
+if (!in_array($category_id, $allowedCategoryIds, true)) {
+    $errors[] = "Please choose a valid category.";
+}
     if (!in_array($inventoryStatus, $allowedAbility, true)) {
         $errors[] = "Please choose a valid inventory status.";
     }
@@ -337,19 +340,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h2>Enter Inventory Item</h2>
 
     <form method="POST" action="">
-<div class="typing">
-        <label for="category_id">Category ID #:</label>
-        <input
-            type="number"
-            id="category_id"
-            name="category_id"
-            min="1"
-            max="3"
-            step="1"
-            required
-            value="<?php echo htmlspecialchars($category_id === "Not Submitted" ? "" : $category_id); ?>"
-        >
-    </div>
+
+<div class="select">
+    <label for="category_id">Category ID #:</label>
+
+    <select id="category_id" name="category_id" required>
+        <option value="">Choose a category</option>
+
+        <option value="1"
+            <?php if ($category_id === "1") echo "selected"; ?>>
+            1 (Camera)
+        </option>
+
+        <option value="2"
+            <?php if ($category_id === "2") echo "selected"; ?>>
+            2 (AV)
+        </option>
+
+        <option value="3"
+            <?php if ($category_id === "3") echo "selected"; ?>>
+            3 (IT)
+        </option>
+    </select>
+</div>
+
         <br><br>
 <div class="typing">
         <label for="inv_name">Item Name:</label>
@@ -514,7 +528,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <p>Item Name: <?php echo htmlspecialchars($inventoryName); ?></p>
 
-    <p>Category ID #: <?php echo htmlspecialchars((string)$category_id); ?></p>
+    <p>Category ID #: <?php echo htmlspecialchars($category_id); ?></p>
 
     <p>Ability: <?php echo htmlspecialchars($inventoryStatus); ?></p>
 

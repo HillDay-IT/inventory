@@ -2,7 +2,7 @@
 
 session_start();
 
-require 'db.php';
+require __DIR__ . '/../config/db.php';
 
 if (!isset($_SESSION['inventory_csrf_token'])) {
     $_SESSION['inventory_csrf_token'] = bin2hex(random_bytes(32));
