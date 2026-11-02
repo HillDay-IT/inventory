@@ -42,7 +42,7 @@ if ($idColumn === '' || !preg_match('/^[A-Za-z0-9_]+$/', $idColumn)) {
     die('The inv table needs a primary key before items can be deleted.');
 }
 
-// STEP 3 — HANDLE THE DELETE BUTTON (READ THIS AFTER BUILDING THE TABLE)
+// STEP 3 — HANDLE THE DELETE BUTTON 
 // When someone clicks Delete, its form sends a POST request to this page.
 // $_POST['item_id'] contains the ID of the row whose button was clicked.
 // We use a prepared statement so the submitted ID is treated as data.
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
 // SELECT chooses the columns we want to display.
 // FROM inv identifies the table. ORDER BY sorts names alphabetically.
 // AS item_id gives the primary-key column a simple name in our PHP code.
-$sql = "SELECT `{$idColumn}` AS item_id, inv_name, inv_quantity, inv_condition
+$sql = "SELECT `{$idColumn}` AS item_id, inv_name, inv_quantity, inv_condition, inv_ability, inv_taggable, inv_loose, inv_notes, inv_image
         FROM inv
         ORDER BY inv_name ASC";
 
@@ -129,6 +129,11 @@ if ($result === false) {
                 <th>Item Name</th>
                 <th>Quantity</th>
                 <th>Condition</th>
+                 <th>Status</th>
+                  <th>Taggable</th>
+                   <th>Loose</th> 
+                   <th>Notes</th> 
+                   <th>Image</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -138,27 +143,91 @@ if ($result === false) {
             <!-- The while loop repeats the <tr> below for every record. -->
             <?php while ($item = $result->fetch_assoc()): ?>
                 <tr>
-                    <!-- Array keys match the column names in our SELECT query. -->
-                    <!-- htmlspecialchars() displays database text safely in HTML. -->
-                    <td><?php echo htmlspecialchars((string)$item['inv_name'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars((string)$item['inv_quantity'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td><?php echo htmlspecialchars((string)$item['inv_condition'], ENT_QUOTES, 'UTF-8'); ?></td>
-                    <td>
-                        <!-- STEP 7 — GIVE EACH RECORD ITS OWN DELETE BUTTON -->
-                        <!-- This form uses POST because deleting changes database data. -->
-                        <!-- The hidden item_id sends THIS row's unique ID to PHP. -->
-                        <form method="post" action="inventory-table-basic-training.php"
-                              onsubmit="return confirm('Delete this inventory item?');">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="item_id"
-                                   value="<?php echo htmlspecialchars((string)$item['item_id'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <!-- SECURITY BOILERPLATE: Keep this hidden token field unchanged. -->
-                            <input type="hidden" name="delete_token"
-                                   value="<?php echo htmlspecialchars($_SESSION['inventory_delete_token'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <button type="submit">Delete</button>
-                        </form>
-                    </td>
-                </tr>
+    <!-- Item Name -->
+    <td>
+        <?php echo htmlspecialchars((string)$item['inv_name'], ENT_QUOTES, 'UTF-8'); ?>
+    </td>
+
+    <!-- Quantity -->
+    <td>
+        <?php echo htmlspecialchars((string)$item['inv_quantity'], ENT_QUOTES, 'UTF-8'); ?>
+    </td>
+
+    <!-- Condition -->
+    <td style="<?php
+        if ($item['inv_condition'] === 'Fair'||'fair') {
+            echo 'color: pink;';
+        } elseif ($item['inv_condition'] === 'New'||'new') {
+            echo 'color: blue;';
+        } elseif ($item['inv_condition'] === 'Good'||'good') {
+            echo 'color: orange;';
+        } elseif ($item['inv_condition'] === 'Poor'||'poor') {
+            echo 'color: green;';
+        } else {
+            echo 'color: black;';
+        }
+    ?>">
+        <?php echo htmlspecialchars((string)$item['inv_condition'], ENT_QUOTES, 'UTF-8'); ?>
+    </td>
+
+    <!-- Status -->
+    <td>
+        <?php echo htmlspecialchars((string)$item['inv_ability'], ENT_QUOTES, 'UTF-8'); ?>
+    </td>
+
+    <!-- Taggable -->
+    <td>
+        <?php echo htmlspecialchars((string)$item['inv_taggable'], ENT_QUOTES, 'UTF-8'); ?>
+    </td>
+
+    <!-- Loose -->
+    <td>
+        <?php echo htmlspecialchars((string)$item['inv_loose'], ENT_QUOTES, 'UTF-8'); ?>
+    </td>
+
+    <!-- Notes -->
+    <td>
+        <?php echo htmlspecialchars((string)$item['inv_notes'], ENT_QUOTES, 'UTF-8'); ?>
+    </td>
+
+    <!-- Image -->
+    <td>
+        <?php
+        $imageUrl = trim((string)($item['inv_image'] ?? ''));
+        ?>
+
+        <?php if (
+            $imageUrl !== '' &&
+            filter_var($imageUrl, FILTER_VALIDATE_URL) &&
+            in_array(strtolower((string)parse_url($imageUrl, PHP_URL_SCHEME)), ['http', 'https'], true)
+        ): ?>
+            <img
+                src="<?php echo htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                alt="Inventory item"
+                style="width: 100px; height: auto;"
+            >
+        <?php else: ?>
+            No image
+        <?php endif; ?>
+    </td>
+
+    <!-- Action -->
+    <td>
+        <form method="post" action="inventory-table-basic-training.php"
+              onsubmit="return confirm('Delete this inventory item?');">
+
+            <input type="hidden" name="action" value="delete">
+
+            <input type="hidden" name="item_id"
+                   value="<?php echo htmlspecialchars((string)$item['item_id'], ENT_QUOTES, 'UTF-8'); ?>">
+
+            <input type="hidden" name="delete_token"
+                   value="<?php echo htmlspecialchars($_SESSION['inventory_delete_token'], ENT_QUOTES, 'UTF-8'); ?>">
+
+            <button type="submit">Delete</button>
+        </form>
+    </td>
+</tr>
             <?php endwhile; ?>
         </tbody>
     </table>

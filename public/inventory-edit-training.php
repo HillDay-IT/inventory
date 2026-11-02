@@ -101,10 +101,15 @@ if ($isPost) {
     $name = trim((string)($_POST['inv_name'] ?? ''));
     $quantity = $_POST['inv_quantity'] ?? '';
     $condition = trim((string)($_POST['inv_condition'] ?? ''));
+    $status=trim((string)($_POST['inv_ability'] ?? ''));
+    $taggable=trim((string)($_POST['inv_taggable'] ?? ''));
+    $loose=trim((string)($_POST['inv_loose'] ?? ''));
+    $notes=trim((string)($_POST['inv_notes'] ?? ''));
+    $image=$_POST['inv_image'] ?? '';
 
     // You already know validation! Reuse it here before writing to MySQL.
-    if ($name === '' || $condition === '') {
-        $errorMessage = 'Item name and condition are required.';
+    if ($name === '' || $condition === ''|| $status===''||$taggable===''||$loose==='') {
+        $errorMessage = 'Item name, condition, status, taggability, and loose or not are required.';
     } elseif (filter_var($quantity, FILTER_VALIDATE_INT,
                 ['options' => ['min_range' => 0]]) === false) {
         $errorMessage = 'Quantity must be a whole number of zero or more.';
@@ -113,7 +118,7 @@ if ($isPost) {
         // WHERE limits the update to the record with this ID.
         // The ? placeholders are supplied by bind_param().
         $updateSql = "UPDATE inv
-                      SET inv_name = ?, inv_quantity = ?, inv_condition = ?
+                      SET inv_name = ?, inv_quantity = ?, inv_condition = ?, inv_ability=?, inv_taggable=?, inv_loose=?,inv_notes=?, inv_image=?
                       WHERE `{$idColumn}` = ?
                       LIMIT 1";
 
@@ -124,8 +129,18 @@ if ($isPost) {
 
         // s = string, i = integer. The four letters match four ? placeholders.
         $quantityNumber = (int)$quantity;
-        $updateStatement->bind_param('siss', $name, $quantityNumber, $condition, $itemId);
-
+      $updateStatement->bind_param(
+    'sisssssss',
+    $name,
+    $quantityNumber,
+    $condition,
+    $status,
+    $taggable,
+    $loose,
+    $notes,
+    $image,
+    $itemId
+);
         if (!$updateStatement->execute()) {
             die('Could not update this inventory item.');
         }
@@ -141,7 +156,7 @@ if ($isPost) {
 // SELECT * retrieves the columns for the selected record.
 // WHERE is essential: without it, the query would retrieve every item.
 // A prepared statement keeps the submitted ID separate from the SQL.
-$selectSql = "SELECT inv_name, inv_quantity, inv_condition
+$selectSql = "SELECT inv_name, inv_quantity, inv_condition, inv_ability, inv_taggable, inv_loose,inv_notes, inv_image
               FROM inv
               WHERE `{$idColumn}` = ?
               LIMIT 1";
@@ -167,6 +182,11 @@ if ($isPost && $errorMessage !== '') {
     $item['inv_name'] = $name;
     $item['inv_quantity'] = is_scalar($quantity) ? (string)$quantity : '';
     $item['inv_condition'] = $condition;
+        $item['inv_ability'] = $status;
+            $item['inv_taggable'] = $taggable;
+                $item['inv_loose'] = $loose;
+                    $item['inv_notes'] = $notes;
+                        $item['inv_image'] = $image;
 }
 
 // Helper: safely display database/user text inside HTML attributes or text.
@@ -219,6 +239,35 @@ function displayValue($value)
         <label for="inv_condition">Condition</label>
         <input id="inv_condition" name="inv_condition" type="text" required
                value="<?php echo displayValue($item['inv_condition']); ?>">
+       
+               <label for="inv_ability">Status</label>
+        <input id="inv_ability" name="inv_ability" type="text" required
+               value="<?php echo displayValue($item['inv_ability']); ?>">
+
+               <label for="inv_taggable">Taggable</label>
+        <input id="inv_taggable" name="inv_taggable" type="text" required
+               value="<?php echo displayValue($item['inv_taggable']); ?>">
+
+               <label for="inv_loose">Loose</label>
+        <input id="inv_loose" name="inv_loose" type="text" required
+               value="<?php echo displayValue($item['inv_loose']); ?>">
+
+               <label for="inv_notes">Notes</label>
+        <input id="inv_notes" name="inv_notes" type="text" 
+               value="<?php echo displayValue($item['inv_notes']); ?>">
+
+               <label for="inv_image">Image URL</label>
+<input id="inv_image" name="inv_image" type="text"
+       value="<?php echo displayValue($item['inv_image']); ?>">
+
+<?php if (!empty($item['inv_image'])): ?>
+    <p>Current Image:</p>
+    <img
+        src="<?php echo displayValue($item['inv_image']); ?>"
+        alt="Inventory item image"
+        style="width: 200px; height: auto;"
+    >
+<?php endif; ?>
 
         <button type="submit">Save Changes</button>
     </form>
