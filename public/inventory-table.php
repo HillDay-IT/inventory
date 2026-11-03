@@ -13,11 +13,11 @@ $categoryNames = [
     '3' => 'IT',
 ];
 $subidentifier = [
-    "Accessories"=>1,
-    "Audio"=>2,
-    "Lenses"=>3,
-    "Lighting"=>4,
-    "Camera Bodies" =>5
+    '1' => "Accessories",
+    '2' => "Audio",
+    '3' => "Lenses",
+    '4' => "Lighting",
+    '5' => "Camera Bodies"
 ];
 if (!isset($_SESSION['inventory_csrf_token'])) {
     $_SESSION['inventory_csrf_token'] = bin2hex(random_bytes(32));
