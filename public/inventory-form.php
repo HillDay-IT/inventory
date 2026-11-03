@@ -52,6 +52,7 @@ $subidentifier = [
     "4(Lighting)",
     "5(Camera Bodies)"
 ];
+
 $identifier = [
     "1(Camera)",
     "2(AV)",
@@ -222,7 +223,7 @@ if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
         $looseValue = ($inventoryLoose === "Yes") ? 1 : 0;
 
         $sql = "INSERT INTO inv
-    (category_id, subcategory_name, inv_name, inv_ability, inv_quantity, inv_condition, inv_taggable, inv_notes, inv_loose, inv_image)
+    (category_id, sub_id, inv_name, inv_ability, inv_quantity, inv_condition, inv_taggable, inv_notes, inv_loose, inv_image)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
            
