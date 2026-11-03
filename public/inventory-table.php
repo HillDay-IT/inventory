@@ -73,6 +73,7 @@ if (isset($_GET['deleted'])) {
     $statusMessage = 'Inventory item updated.';
 }
 
+
 $sql = $primaryKey === ''
     ? ''
     : "SELECT
