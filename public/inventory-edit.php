@@ -10,6 +10,11 @@ if (!isset($_SESSION['inventory_csrf_token'])) {
 
 $allowedAbilities = ['Working', 'Not tested', 'Not working', 'Partially working'];
 $allowedConditions = ['Fair', 'Poor', 'Good', 'New'];
+$categories = [
+    '1' => 'Camera',
+    '2' => 'AV',
+    '3' => 'IT',
+];
 $errors = [];
 $inventoryItem = null;
 $rowId = $_POST['row_id'] ?? $_GET['id'] ?? '';
@@ -81,8 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $inventoryItem !== null) {
         $errors[] = 'The update request could not be verified.';
     }
 
-    if (!ctype_digit($categoryId) || (int)$categoryId < 1 || (int)$categoryId > 3) {
-        $errors[] = 'Category ID must be a whole number from 1 to 3.';
+    if (!array_key_exists($categoryId, $categories)) {
+        $errors[] = 'Please choose a valid category.';
     }
 
     if ($inventoryName === '') {
@@ -193,10 +198,17 @@ function editValue($value)
                     value="<?php echo editValue($_SESSION['inventory_csrf_token']); ?>"
                 >
 
-                <div class="typing">
-                    <label for="category_id">Category ID #:</label>
-                    <input type="number" id="category_id" name="category_id" min="1" max="3" required
-                        value="<?php echo editValue($inventoryItem['category_id']); ?>">
+                <div class="select edit-field">
+                    <label for="category_id">Category:</label>
+                    <select id="category_id" name="category_id" required>
+                        <option value="">Choose a category</option>
+                        <?php foreach ($categories as $optionCategoryId => $categoryName): ?>
+                            <option value="<?php echo editValue($optionCategoryId); ?>"
+                                <?php echo (string)$inventoryItem['category_id'] === $optionCategoryId ? 'selected' : ''; ?>>
+                                <?php echo editValue($categoryName); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
                 <div class="typing">

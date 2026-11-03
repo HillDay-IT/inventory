@@ -7,6 +7,11 @@ require __DIR__ . '/../config/db.php';
 $inventoryItems = [];
 $errorMessage = '';
 $statusMessage = '';
+$categoryNames = [
+    '1' => 'Camera',
+    '2' => 'AV',
+    '3' => 'IT',
+];
 
 if (!isset($_SESSION['inventory_csrf_token'])) {
     $_SESSION['inventory_csrf_token'] = bin2hex(random_bytes(32));
@@ -163,7 +168,7 @@ function isValidImageUrl($url)
                     <tbody>
                         <?php foreach ($inventoryItems as $item): ?>
                             <tr>
-                                <td><?php echo displayValue($item['category_id']); ?></td>
+                                <td><?php echo displayValue($categoryNames[(string)$item['category_id']] ?? 'Unknown'); ?></td>
                                 <td><?php echo displayValue($item['inv_name']); ?></td>
                                 <td><?php echo displayValue($item['inv_ability']); ?></td>
                                 <td><?php echo displayValue($item['inv_quantity']); ?></td>
