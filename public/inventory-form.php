@@ -44,6 +44,14 @@ require __DIR__ . '/../config/db.php';
 
 // This variable will eventually hold a success or failure message.
 $message = '';
+
+$subidentifier = [
+    "Accessories"=>1,
+    "Audio"=>2,
+    "Lenses"=>3,
+    "Lighting"=>4,
+    "Camera Bodies" =>5
+];
 $identifier = [
     "1(Camera)",
     "2(AV)",
@@ -86,6 +94,7 @@ $inventoryTaggable = "Not Submitted";
 $inventoryLoose = "Not Submitted";
 $inventoryNotes = "None";
 $inventoryImage = "Not Submitted";
+$subcategory_id= "Not Submitted";
 
 $successMessage = null;
 $projectCost = null;
@@ -120,7 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $inventoryStatus = $_POST['inv_ability'] ?? "";
     $inventoryQuantity = $_POST['inv_quantity'] ?? "";
     $inventoryCondition = $_POST['inv_condition'] ?? "";
-
+$subcategory_id = $_POST['subcategory_id']?? "";
+$subcategory_id = $subidentifier[$subcategory_id];
     /*
     | CHECKBOXES / RADIO BUTTONS WORK DIFFERENTLY
     |
@@ -162,6 +172,10 @@ $allowedCategoryIds = ["1", "2", "3"];
 
 if (!in_array($category_id, $allowedCategoryIds, true)) {
     $errors[] = "Please choose a valid category.";
+}
+
+if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
+    $errors[] = "Please choose a valid camera subcategory.";
 }
     if (!in_array($inventoryStatus, $allowedAbility, true)) {
         $errors[] = "Please choose a valid inventory status.";
@@ -207,9 +221,10 @@ if (!in_array($category_id, $allowedCategoryIds, true)) {
         $looseValue = ($inventoryLoose === "Yes") ? 1 : 0;
 
         $sql = "INSERT INTO inv
-            (category_id, inv_name, inv_ability, inv_quantity, inv_condition, inv_taggable, inv_notes, inv_loose, inv_image)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    (category_id, subcategory_name, inv_name, inv_ability, inv_quantity, inv_condition, inv_taggable, inv_notes, inv_loose, inv_image)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+           
         // ---------------------------------------------------------------------
         // 5. PREPARE THE SQL STATEMENT
         // ---------------------------------------------------------------------
@@ -230,10 +245,13 @@ if (!in_array($category_id, $allowedCategoryIds, true)) {
         */
 
         $statement = $conn->prepare($sql);
+       
 
         if ($statement === false) {
             $errors[] = "The SQL statement could not be prepared.";
         } else {
+        
+
 
             // ---------------------------------------------------------------------
             // 6. BIND PHP VARIABLES TO THE ? PLACEHOLDERS
@@ -262,20 +280,25 @@ if (!in_array($category_id, $allowedCategoryIds, true)) {
             */
 
             $categoryValue = (int)$category_id;
+            $subcategoryValue = ($category_id === "1")
+    ? (int)$subcategory_id
+    : null;
             $quantityValue = (int)$inventoryQuantity;
 
-            $statement->bind_param(
-                'isisisiss',
-                $categoryValue,
-                $inventoryName,
-                $inventoryStatus,
-                $quantityValue,
-                $inventoryCondition,
-                $taggableValue,
-                $inventoryNotes,
-                $looseValue,
-                $inventoryImage
-            );
+           $statement->bind_param(
+    'iissisisis',
+    $categoryValue,
+    $subcategoryValue,
+    $inventoryName,
+    $inventoryStatus,
+    $quantityValue,
+    $inventoryCondition,
+    $taggableValue,
+    $inventoryNotes,
+    $looseValue,
+    $inventoryImage
+);
+        
 
             // ---------------------------------------------------------------------
             // 7. EXECUTE THE STATEMENT
@@ -363,6 +386,46 @@ if (!in_array($category_id, $allowedCategoryIds, true)) {
         </option>
     </select>
 </div>
+
+<div id="subcategory_container" style="display: none;">
+
+    <div class="select">
+        <label for="subcategory_id">Camera Subcategory:</label>
+
+        <select id="subcategory_id" name="subcategory_id">
+            <option value="">Choose a subcategory</option>
+            <option value="1">Accessories</option>
+            <option value="2">Audio</option>
+            <option value="3">Lenses</option>
+            <option value="4">Lighting</option>
+            <option value="5">Camera Bodies</option>
+        </select>
+    </div>
+
+</div>
+<script>
+   const categoryDropdown = document.getElementById("category_id");
+const subcategoryContainer = document.getElementById("subcategory_container");
+const subcategoryDropdown = document.getElementById("subcategory_id");
+
+function updateSubcategory() {
+
+    if (categoryDropdown.value === "1") {
+        subcategoryContainer.style.display = "block";
+        subcategoryDropdown.required = true;
+    } else {
+        subcategoryContainer.style.display = "none";
+        subcategoryDropdown.required = false;
+        subcategoryDropdown.value = "";
+    }
+
+}
+
+categoryDropdown.addEventListener("change", updateSubcategory);
+
+// Run when the page loads
+updateSubcategory();
+</script>
 
         <br><br>
 <div class="typing">
@@ -529,6 +592,8 @@ if (!in_array($category_id, $allowedCategoryIds, true)) {
     <p>Item Name: <?php echo htmlspecialchars($inventoryName); ?></p>
 
     <p>Category ID #: <?php echo htmlspecialchars($category_id); ?></p>
+   
+    <p>Subcategory ID: <?php echo htmlspecialchars((string)$subcategory_id); ?></p>
 
     <p>Ability: <?php echo htmlspecialchars($inventoryStatus); ?></p>
 

@@ -69,11 +69,10 @@ if (isset($_GET['deleted'])) {
 
 $sql = $primaryKey === ''
     ? ''
-    : "SELECT `{$primaryKey}` AS row_id, category_id, inv_name, inv_ability, inv_quantity,
-            inv_condition, inv_taggable, inv_notes, inv_loose, inv_image
-        FROM inv
-        ORDER BY inv_name ASC";
-
+    : "SELECT `{$primaryKey}` AS row_id, category_id, subcategory_name, inv_name, inv_ability, inv_quantity,
+        inv_condition, inv_taggable, inv_notes, inv_loose, inv_image
+    FROM inv
+    ORDER BY inv_name ASC";
 $result = $sql === '' ? false : $conn->query($sql);
 
 if ($result === false) {
@@ -141,6 +140,7 @@ function isValidImageUrl($url)
                 <table class="table table-striped table-bordered align-middle w-100 inventory-table">
                     <colgroup>
                         <col class="column-category">
+                        <col class="column-subcategory">
                         <col class="column-name">
                         <col class="column-ability">
                         <col class="column-quantity">
@@ -154,6 +154,7 @@ function isValidImageUrl($url)
                     <thead class="table-dark">
                         <tr>
                             <th scope="col">Category</th>
+                            <th scope="col">Subcat</th>
                             <th scope="col">Item Name</th>
                             <th scope="col">Ability</th>
                             <th scope="col">Quantity</th>
@@ -169,6 +170,7 @@ function isValidImageUrl($url)
                         <?php foreach ($inventoryItems as $item): ?>
                             <tr>
                                 <td><?php echo displayValue($categoryNames[(string)$item['category_id']] ?? 'Unknown'); ?></td>
+                               <td><?php echo displayValue($item['subcategory_name']); ?></td>
                                 <td><?php echo displayValue($item['inv_name']); ?></td>
                                 <td><?php echo displayValue($item['inv_ability']); ?></td>
                                 <td><?php echo displayValue($item['inv_quantity']); ?></td>

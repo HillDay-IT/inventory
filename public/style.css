@@ -241,9 +241,11 @@ max-width: 800px;
 }
 
 .column-actions {
-    width: 180px;
+    width: 130px;
 }
-
+.column-subcategory {
+    width: 70px;
+}
 .notes-cell {
     min-width: 180px;
     overflow-wrap: anywhere;
