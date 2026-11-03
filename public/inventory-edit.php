@@ -83,6 +83,7 @@ $allowedCondition = [
     "New"
 ];
 
+
 $isTaggable = [
     "Yes",
     "No"
