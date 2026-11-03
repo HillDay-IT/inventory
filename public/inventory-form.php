@@ -46,11 +46,11 @@ require __DIR__ . '/../config/db.php';
 $message = '';
 
 $subidentifier = [
-    "Accessories"=>1,
-    "Audio"=>2,
-    "Lenses"=>3,
-    "Lighting"=>4,
-    "Camera Bodies" =>5
+    "1(Accessories)",
+    "2(Audio)",
+    "3(Lenses)",
+    "4(Lighting)",
+    "5(Camera Bodies)"
 ];
 $identifier = [
     "1(Camera)",
