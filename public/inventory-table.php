@@ -90,7 +90,7 @@ $sql = $primaryKey === ''
     inv.inv_image
 FROM inv
 LEFT JOIN inventory_subcat AS s
-    ON inv.category_id = s.invcat_id
+    ON inv.sub_id = s.invcat_id
 ORDER BY inv.inv_name ASC;";
 $result = $sql === '' ? false : $conn->query($sql);
 
