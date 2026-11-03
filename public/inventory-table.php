@@ -12,7 +12,13 @@ $categoryNames = [
     '2' => 'AV',
     '3' => 'IT',
 ];
-
+$subidentifier = [
+    "Accessories"=>1,
+    "Audio"=>2,
+    "Lenses"=>3,
+    "Lighting"=>4,
+    "Camera Bodies" =>5
+];
 if (!isset($_SESSION['inventory_csrf_token'])) {
     $_SESSION['inventory_csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -69,10 +75,22 @@ if (isset($_GET['deleted'])) {
 
 $sql = $primaryKey === ''
     ? ''
-    : "SELECT `{$primaryKey}` AS row_id, category_id, subcategory_name, inv_name, inv_ability, inv_quantity,
-        inv_condition, inv_taggable, inv_notes, inv_loose, inv_image
-    FROM inv
-    ORDER BY inv_name ASC";
+    : "SELECT
+    `inv`.`{$primaryKey}` AS row_id,
+    inv.category_id,
+    s.subcat_name,
+    inv.inv_name,
+    inv.inv_ability,
+    inv.inv_quantity,
+    inv.inv_condition,
+    inv.inv_taggable,
+    inv.inv_notes,
+    inv.inv_loose,
+    inv.inv_image
+FROM inv
+LEFT JOIN inventory_subcat AS s
+    ON inv.category_id = s.invcat_id
+ORDER BY inv.inv_name ASC;";
 $result = $sql === '' ? false : $conn->query($sql);
 
 if ($result === false) {
@@ -170,7 +188,7 @@ function isValidImageUrl($url)
                         <?php foreach ($inventoryItems as $item): ?>
                             <tr>
                                 <td><?php echo displayValue($categoryNames[(string)$item['category_id']] ?? 'Unknown'); ?></td>
-                               <td><?php echo displayValue($item['subcategory_name']); ?></td>
+                               <td><?php echo displayValue($subidentifier[(string)$item['subcat_name']] ?? 'Unknown'); ?></td>
                                 <td><?php echo displayValue($item['inv_name']); ?></td>
                                 <td><?php echo displayValue($item['inv_ability']); ?></td>
                                 <td><?php echo displayValue($item['inv_quantity']); ?></td>
