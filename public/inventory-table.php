@@ -138,7 +138,8 @@ function isValidImageUrl($url)
 </head>
 <body>
     <header class="page-header">
-        <h1>Inventory Table</h1>
+      <p> HillDay PR </p> 
+    <h1 class="table-head"> Inventory Table </h1>
     </header>
 
     <main class="content-box inventory-list">
@@ -194,7 +195,18 @@ function isValidImageUrl($url)
                                 <td><?php echo displayValue($item['inv_name']); ?></td>
                                 <td><?php echo displayValue($item['inv_ability']); ?></td>
                                 <td><?php echo displayValue($item['inv_quantity']); ?></td>
-                                <td><?php echo displayValue($item['inv_condition']); ?></td>
+                                <td style="<?php
+        if ($item['inv_condition'] === 'Fair' || $item['inv_condition'] === 'fair') {
+    echo 'color: pink;';
+} elseif ($item['inv_condition'] === 'New' || $item['inv_condition'] === 'new') {
+    echo 'color: blue;';
+} elseif ($item['inv_condition'] === 'Good' || $item['inv_condition'] === 'good') {
+    echo 'color: orange;';
+} elseif ($item['inv_condition'] === 'Poor' || $item['inv_condition'] === 'poor') {
+    echo 'color: green;';
+}
+    ?>">
+                                <?php echo displayValue($item['inv_condition']); ?></td>
                                 <td><?php echo displayBoolean($item['inv_taggable']); ?></td>
                                 <td><?php echo displayBoolean($item['inv_loose']); ?></td>
                                 <td class="notes-cell"><?php echo nl2br(displayValue($item['inv_notes'])); ?></td>
