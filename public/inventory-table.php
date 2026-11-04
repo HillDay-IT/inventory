@@ -190,7 +190,7 @@ function isValidImageUrl($url)
                         <?php foreach ($inventoryItems as $item): ?>
                             <tr>
                                 <td><?php echo displayValue($categoryNames[(string)$item['category_id']] ?? 'Unknown'); ?></td>
-                               <td><?php echo displayValue($subidentifier[(string)$item['subcat_name']] ?? 'Unknown'); ?></td>
+                                <td><?php echo displayValue($subidentifier[(string)$item['sub_id']] ?? 'Unknown'); ?></td>
                                 <td><?php echo displayValue($item['inv_name']); ?></td>
                                 <td><?php echo displayValue($item['inv_ability']); ?></td>
                                 <td><?php echo displayValue($item['inv_quantity']); ?></td>
