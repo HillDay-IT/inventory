@@ -1,28 +1,87 @@
-h1{
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    color:cornflowerblue;
-     text-align: center;
+body {
+  margin: 0;
+}
+.title{
+    max-width: 800px;
+    margin: 35px auto 25px auto;
+    padding: 18px 25px;
+    background-color: rgb(230, 239, 255);
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    box-sizing: border-box;
+    font-family:arial, sans-serif;
 }
 h2{
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-family: arial, sans-serif;
     color:cornflowerblue;
+    font-weight:bold;
+    font-weight:800;
+
      
 }
 
 form{
-    padding:25px;
+    padding:25px 0;
     border-radius:12px;
     max-width:1000px;
     margin:auto;
     background: rgb(255, 254, 254);
+     font-family:arial, sans-serif;
 }
 
 .typing label{
     display:block;
     margin-bottom:8px;
-    font-weight:bold;
-    color: cornflowerblue;
-     font-size: 130%;
+    color: rgb(58, 57, 57);
+     font-size: 110%;
+     font-weight:bold;
+}
+.colored-type {
+  background-color: #c4d4ff;
+  color: #1a237e;
+  padding:12px; 
+   border-color: #8cabff; 
+   border-radius:4px;
+}
+
+.colored-type:hover {
+  background-color: #e8f0fe;
+  color: #1a237e;
+  padding:12px; 
+   border-radius:4px;
+}
+.colored-type:focus {
+  background-color: #ffffff;
+  color: #1a237e;
+  padding:12px; 
+   border-radius:4px;
+}
+.colored-select {
+  background-color: #c4d4ff;
+  color: #1a237e;
+  padding:12px; 
+   border-color: #8cabff; 
+   border-radius:4px;
+   font-weight:bold;
+   font-size:90%
+}
+
+.colored-select:hover {
+  background-color: #e8f0fe;
+  color: #1a237e;
+  padding:12px; 
+   border-radius:4px;
+   font-weight:bold;
+   font-size:90%
+}
+.colored-select:focus {
+  background-color: #ffffff;
+  color: #1a237e;
+  padding:12px; 
+   border-radius:4px;
+   font-weight:bold;
+   font-size:90%
 }
 
 input{
@@ -31,15 +90,18 @@ input{
     margin-bottom:20px;
     box-sizing:border-box;
 }
+.drop {
+  font-size: 110%;
+}
 
 .drop label{
      display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom:8px;
-    font-weight:bold; 
-    color:cornflowerblue;
-    font-size: 130%;
+    color:rgb(0, 0, 0);
+    font-size: 110%;
+    font-weight:bold;
 }
 
 .drop input[type="radio"] {
@@ -54,12 +116,12 @@ input{
     align-items: center;
     gap: 8px;
     margin-bottom:8px;
-    font-weight:bold; 
-    color:cornflowerblue;
-    font-size: 130%;
+    color:rgb(58, 57, 57);
+    font-size: 110%;
   width: 250px;
     height: 45px;
-    padding: 10px;
+    font-weight:bold;
+
 }
 
 
@@ -79,22 +141,30 @@ p{
      margin-bottom:8px;
     font-weight:bold;
     color:rgb(0, 0, 0);
-     font-size: 130%; 
+     font-size: 110%; 
+      font-family:arial, sans-serif;
 }
 
 .page-header {
-max-width: 800px;
-    margin: 35px auto 25px auto;
-    padding: 18px 25px;
-    background-color: rgb(230, 239, 255);
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    text-align: center;
-    box-sizing: border-box;
+   width: 100%;
+   margin: 0 0 30px;
+  padding: 50px 20px;
+  box-sizing: border-box;
+  background: #c4d4ff;
+  color: #fff;
+  border-bottom: 8px solid #d0d2d3;
+  text-align: center;
+   font-family:arial, sans-serif;
 }
 
 .page-header h1 {
-    margin: 0;
+  margin: 0;
+  color: #fff;
+  font-size: 2.5rem;
+}
+.page-header p {
+  margin: 0;
+  color: #fff;
 }
 
 .content-box {

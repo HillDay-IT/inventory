@@ -351,7 +351,8 @@ if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
 <body>
 
     <header class="page-header">
-    <h1>Inventory Application</h1>
+   <p> HillDay PR </p>
+    <h1> Inventory form </h1>
 </header>
    <?php if ($message !== ''): ?>
     <div class="message-box">
@@ -359,8 +360,8 @@ if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
     </div>
 <?php endif; ?>
 
-    
 
+<h2 class="title"> Inventory Application</h2>
     <div class="content-box">
     <h2>Enter Inventory Item</h2>
 
@@ -369,7 +370,7 @@ if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
 <div class="select">
     <label for="category_id">Category ID #:</label>
 
-    <select id="category_id" name="category_id" required>
+    <select id="category_id" name="category_id"  class="colored-select"required>
         <option value="">Choose a category</option>
 
         <option value="1"
@@ -394,7 +395,7 @@ if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
     <div class="select">
         <label for="subcategory_id">Camera Subcategory:</label>
 
-        <select id="subcategory_id" name="subcategory_id">
+        <select  id="subcategory_id" name="subcategory_id" class="colored-select">
             <option value="">Choose a subcategory</option>
             <option value="1">Accessories</option>
             <option value="2">Audio</option>
@@ -432,8 +433,8 @@ updateSubcategory();
         <br><br>
 <div class="typing">
         <label for="inv_name">Item Name:</label>
-        <input
-            type="text"
+        <input class="colored-type"
+          type="text"
             id="inv_name"
             name="inv_name"
              class="typing"
@@ -444,7 +445,7 @@ updateSubcategory();
 <div class="select">
         <label for="inv_ability">Working or not?:</label>
 
-        <select id="inv_ability" name="inv_ability">
+        <select class="colored-select" id="inv_ability" name="inv_ability">
             <option value="">Choose a status</option>
 
             <option value="Not tested"
@@ -471,7 +472,7 @@ updateSubcategory();
         <br><br>
 <div class="typing">
         <label for="inv_quantity">Quantity:</label>
-        <input
+        <input class="colored-type"
             type="number"
             id="inv_quantity"
             name="inv_quantity"
@@ -485,7 +486,7 @@ updateSubcategory();
 <div class="select">
         <label for="inv_condition">Item Condition:</label>
 
-        <select id="inv_condition" name="inv_condition">
+        <select class="colored-select" id="inv_condition" name="inv_condition">
             <option value="">Choose a condition</option>
 
             <option value="Fair"
@@ -514,8 +515,8 @@ updateSubcategory();
         <label>Is it taggable?</label>
         <br>
 
-        <input
-            type="radio"
+        <input 
+        type="radio"
             name="inv_taggable"
             value="Yes"
             <?php if ($inventoryTaggable === "Yes") { echo "checked"; } ?>
@@ -560,7 +561,7 @@ updateSubcategory();
         <label for="inv_notes">Notes:</label>
         <br>
 
-        <textarea
+        <textarea class="colored-type"
             id="inv_notes"
             name="inv_notes"
             rows="5"
@@ -571,7 +572,7 @@ updateSubcategory();
         <br><br>
 <div class="typing">
         <label for="inv_image">Image URL:</label>
-        <input
+        <input class="colored-type"
             type="url"
             id="inv_image"
             name="inv_image"
