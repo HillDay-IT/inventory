@@ -181,7 +181,7 @@ if ($primaryKey === '' || $rowId === '') {
 
     $sql = "SELECT
                 category_id,
-                subcategory_name,
+                sub_id,
                 inv_name,
                 inv_ability,
                 inv_quantity,
@@ -460,7 +460,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $inventoryItem !== null) {
 
         $sql = "UPDATE inv SET
                     category_id = ?,
-                    subcategory_name = ?,
+                    sub_id = ?,
                     inv_name = ?,
                     inv_ability = ?,
                     inv_quantity = ?,
