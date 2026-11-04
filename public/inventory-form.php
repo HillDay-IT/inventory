@@ -64,7 +64,7 @@ $errors = [];
 $message = '';
 
 $category_id = '';
-$subcategory_id = '';
+$sub_id = '';
 $inventoryName = '';
 $inventoryStatus = '';
 $inventoryQuantity = '';
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Get the submitted values. The names match the form's name attributes.
     $category_id = $_POST['category_id'] ?? '';
-    $subcategory_id = $_POST['subcategory_id'] ?? '';
+    $subcategory_id = $_POST['sub_id'] ?? '';
     $inventoryName = trim($_POST['inv_name'] ?? '');
     $inventoryStatus = $_POST['inv_ability'] ?? '';
     $inventoryQuantity = trim($_POST['inv_quantity'] ?? '');
@@ -300,11 +300,11 @@ if (
         <!-- CAMERA SUBCATEGORY -->
         <div id="subcategory_container" style="display: none;">
             <div class="select">
-                <label for="subcategory_id">Camera Subcategory:</label>
+                <label for="sub_id">Camera Subcategory:</label>
 
                 <select
-                    id="subcategory_id"
-                    name="subcategory_id"
+                    id="sub_id"
+                    name="sub_id"
                     class="colored-select"
                 >
                     <option value="">Choose a subcategory</option>
@@ -325,7 +325,7 @@ if (
         <script>
             const categoryDropdown = document.getElementById("category_id");
             const subcategoryContainer = document.getElementById("subcategory_container");
-            const subcategoryDropdown = document.getElementById("subcategory_id");
+            const subcategoryDropdown = document.getElementById("sub_id");
 
             function updateSubcategory() {
                 if (categoryDropdown.value === "1") {
