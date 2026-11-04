@@ -700,7 +700,7 @@ function editValue($value)
 
                             <option
                                 value="<?php echo editValue($subId); ?>"
-                                <?php if ((string)$inventoryItem['subcategory_name'] === (string)$subId) echo "selected"; ?>
+                                <?php if ((string)$inventoryItem['sub_id'] === (string)$subId) echo "selected"; ?>
                             >
 
                                 <?php echo editValue($subName); ?>
