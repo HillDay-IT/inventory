@@ -79,6 +79,7 @@ $sql = $primaryKey === ''
     : "SELECT
     `inv`.`{$primaryKey}` AS row_id,
     inv.category_id,
+    inv.sub_id,
     s.subcat_name,
     inv.inv_name,
     inv.inv_ability,
