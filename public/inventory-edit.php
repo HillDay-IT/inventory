@@ -661,7 +661,7 @@ function editValue($value)
 
                 <label for="category_id">Category ID #:</label>
 
-                <select id="category_id" name="category_id" required>
+                <select id="category_id" name="category_id" class="colored-select" required>
 
                     <option value="">Choose a category</option>
 
@@ -691,7 +691,7 @@ function editValue($value)
 
                     <label for="subcategory_id">Camera Subcategory:</label>
 
-                    <select id="subcategory_id" name="subcategory_id">
+                    <select id="subcategory_id" name="subcategory_id" class='colored-select'>
 
                         <option value="">Choose a subcategory</option>
 
@@ -767,6 +767,7 @@ function editValue($value)
                 <label for="inv_name">Item Name:</label>
 
                 <input
+                class="colored-type"
                     type="text"
                     id="inv_name"
                     name="inv_name"
@@ -787,7 +788,7 @@ function editValue($value)
 
                 <label for="inv_ability">Working or not?:</label>
 
-                <select id="inv_ability" name="inv_ability" required>
+                <select id="inv_ability" name="inv_ability" class="colored-select" required>
 
                     <option value="">Choose a status</option>
 
@@ -819,6 +820,7 @@ function editValue($value)
                 <label for="inv_quantity">Quantity:</label>
 
                 <input
+                class="colored-type"
                     type="number"
                     id="inv_quantity"
                     name="inv_quantity"
@@ -841,7 +843,7 @@ function editValue($value)
 
                 <label for="inv_condition">Item Condition:</label>
 
-                <select id="inv_condition" name="inv_condition" required>
+                <select id="inv_condition" name="inv_condition" class='colored-select'required>
 
                     <option value="">Choose a condition</option>
 
@@ -943,6 +945,7 @@ function editValue($value)
                 <br>
 
                 <textarea
+                class="colored-type"
                     id="inv_notes"
                     name="inv_notes"
                     rows="5"
@@ -963,6 +966,7 @@ function editValue($value)
                 <label for="inv_image">Image URL:</label>
 
                 <input
+                class="colored-type"
                     type="url"
                     id="inv_image"
                     name="inv_image"

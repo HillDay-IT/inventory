@@ -1,64 +1,36 @@
 <?php
-
 /*
 |--------------------------------------------------------------------------
-| INVENTORY TRAINING APPLICATION
+| INVENTORY FORM APPLICATION
 |--------------------------------------------------------------------------
-|
-| This file demonstrates the complete path of a form submission:
-|
-| HTML Form
-|    ↓
-| $_POST
-
-
-|    ↓
-| PHP Variables
-|    ↓
-| Prepared SQL Statement
-|    ↓
-| MySQL Database
-|
-| This version does NOT build the form for the student.
-| Instead, it explains how db.php creates the database connection and how
-| this file uses that connection to insert form data into MySQL.
-|
-*/
-
-
-// -------------------------------------------------------------------------
-// 1. LOAD THE DATABASE CONNECTION
-// -------------------------------------------------------------------------
-
-/*
-| require tells PHP to load and run another PHP file.
-|
-| db.php creates the $conn variable that represents our connection
-| to MySQL.
-|
-| After this line runs, we can use $conn inside this file.
+| This file demonstrates how to:
+| 1. Display form choices using PHP arrays and foreach loops.
+| 2. Receive values through $_POST.
+| 3. Validate the submitted values.
+| 4. Insert a new inventory item using a prepared SQL statement.
 */
 
 require __DIR__ . '/../config/db.php';
 
+// -------------------------------------------------------------------------
+// 1. ARRAYS THAT HOLD THE FORM OPTIONS
+// -------------------------------------------------------------------------
 
-// This variable will eventually hold a success or failure message.
-$message = '';
-
-$subidentifier = [
-    "1(Accessories)",
-    "2(Audio)",
-    "3(Lenses)",
-    "4(Lighting)",
-    "5(Camera Bodies)"
+// The array key is the value saved in the database.
+// The array value is the name displayed to the user.
+$categories = [
+    "1" => "Camera",
+    "2" => "AV",
+    "3" => "IT"
 ];
 
-$identifier = [
-    "1(Camera)",
-    "2(AV)",
-    "3(IT)"
+$subcategories = [
+    1 => "Accessories",
+    2 => "Audio",
+    3 => "Lenses",
+    4 => "Lighting",
+    5 => "Camera Bodies"
 ];
-
 
 $allowedAbility = [
     "Working",
@@ -84,109 +56,81 @@ $isLoose = [
     "No"
 ];
 
+// -------------------------------------------------------------------------
+// 2. DEFAULT VALUES
+// -------------------------------------------------------------------------
+
 $errors = [];
+$message = '';
 
-// These are the default values shown when nothing has been submitted.
-$category_id = "Not Submitted";
-$inventoryName = "Not Submitted";
-$inventoryStatus = "Not Submitted";
-$inventoryQuantity = "Not Submitted";
-$inventoryCondition = "Not Submitted";
-$inventoryTaggable = "Not Submitted";
-$inventoryLoose = "Not Submitted";
-$inventoryNotes = "None";
-$inventoryImage = "Not Submitted";
-$subcategory_id= "Not Submitted";
+$category_id = '';
+$subcategory_id = '';
+$inventoryName = '';
+$inventoryStatus = '';
+$inventoryQuantity = '';
+$inventoryCondition = '';
+$inventoryTaggable = '';
+$inventoryLoose = '';
+$inventoryNotes = '';
+$inventoryImage = '';
 
-$successMessage = null;
-$projectCost = null;
-
+// -------------------------------------------------------------------------
+// 3. RECEIVE AND VALIDATE THE FORM SUBMISSION
+// -------------------------------------------------------------------------
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // ---------------------------------------------------------------------
-    // 2. GET THE VALUES SENT BY THE FORM
-    // ---------------------------------------------------------------------
+    // Get the submitted values. The names match the form's name attributes.
+    $category_id = $_POST['category_id'] ?? '';
+    $subcategory_id = $_POST['subcategory_id'] ?? '';
+    $inventoryName = trim($_POST['inv_name'] ?? '');
+    $inventoryStatus = $_POST['inv_ability'] ?? '';
+    $inventoryQuantity = trim($_POST['inv_quantity'] ?? '');
+    $inventoryCondition = $_POST['inv_condition'] ?? '';
+    $inventoryTaggable = $_POST['inv_taggable'] ?? '';
+    $inventoryLoose = $_POST['inv_loose'] ?? '';
+    $inventoryNotes = trim($_POST['inv_notes'] ?? '');
+    $inventoryImage = trim($_POST['inv_image'] ?? '');
 
-    /*
-    | $_POST is a PHP superglobal containing data submitted using POST.
-    |
-    | The text inside the brackets matches the "name" attribute of the
-    | corresponding HTML form field.
-    |
-    | Example:
-    |
-    | <input name="name">
-    |
-    | becomes:
-    |
-    | $_POST['name']
-    |
-    | We store each submitted value in a PHP variable so it is easier
-    | to work with.
-    */
+    // Validate category.
+    if (!array_key_exists($category_id, $categories)) {
+        $errors[] = "Please choose a valid category.";
+    }
 
-    $category_id = $_POST['category_id'] ?? "";
-    $inventoryName = trim($_POST['inv_name'] ?? "");
-    $inventoryStatus = $_POST['inv_ability'] ?? "";
-    $inventoryQuantity = $_POST['inv_quantity'] ?? "";
-    $inventoryCondition = $_POST['inv_condition'] ?? "";
-$subcategory_id = $_POST['subcategory_id']?? "";
-$subcategory_id = $subidentifier[$subcategory_id];
-    /*
-    | CHECKBOXES / RADIO BUTTONS WORK DIFFERENTLY
-    |
-    | A radio button that is not selected normally does not appear in
-    | $_POST at all.
-    |
-    | The ?? operator gives us a default value if the field was not submitted.
-    |
-    | Since "Yes" and "No" are choices, we first store the selected answer
-    | as a string in the PHP variable.
-    */
+    // A subcategory is required only when Camera is selected.
+    if ($category_id === "1") {
+        if (
+            !ctype_digit((string)$subcategory_id) ||
+            !array_key_exists((int)$subcategory_id, $subcategories)
+        ) {
+            $errors[] = "Please choose a valid camera subcategory.";
+        }
+    }
 
-    $inventoryTaggable = $_POST['inv_taggable'] ?? "";
-    $inventoryLoose = $_POST['inv_loose'] ?? "";
-
-    $inventoryNotes = trim($_POST['inv_notes'] ?? "");
-    $inventoryImage = trim($_POST['inv_image'] ?? "");
-
-    // ---------------------------------------------------------------------
-    // 3. VALIDATE THE FORM VALUES
-    // ---------------------------------------------------------------------
-
-    if ($inventoryName === "") {
+    // Validate item name.
+    if ($inventoryName === '') {
         $errors[] = "Inventory name is required.";
     }
 
-    if ($inventoryStatus === "") {
-        $errors[] = "Status is required.";
-    }
-
-    if ($inventoryQuantity === "") {
-        $errors[] = "Quantity required.";
-    }
-
-    if ($inventoryQuantity !== "" && (!ctype_digit((string)$inventoryQuantity) || (int)$inventoryQuantity < 0)) {
-        $errors[] = "Quantity must be a whole number.";
-    }
-$allowedCategoryIds = ["1", "2", "3"];
-
-if (!in_array($category_id, $allowedCategoryIds, true)) {
-    $errors[] = "Please choose a valid category.";
-}
-
-if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
-    $errors[] = "Please choose a valid camera subcategory.";
-}
+    // Validate status.
     if (!in_array($inventoryStatus, $allowedAbility, true)) {
         $errors[] = "Please choose a valid inventory status.";
     }
 
+    // Validate quantity.
+    if (
+        $inventoryQuantity === '' ||
+        !ctype_digit((string)$inventoryQuantity)
+    ) {
+        $errors[] = "Quantity must be a whole number.";
+    }
+
+    // Validate condition.
     if (!in_array($inventoryCondition, $allowedCondition, true)) {
         $errors[] = "Please choose a condition.";
     }
 
+    // Validate Yes/No choices.
     if (!in_array($inventoryTaggable, $isTaggable, true)) {
         $errors[] = "Please select Yes or No for taggable.";
     }
@@ -195,453 +139,403 @@ if ($category_id === "1" && !in_array($subcategory_id, $subidentifier, true)) {
         $errors[] = "Please select Yes or No for loose.";
     }
 
-    // ---------------------------------------------------------------------
-    // 4. WRITE THE SQL COMMAND
-    // ---------------------------------------------------------------------
+    // Validate the image URL only when one was entered.
+    if (
+        $inventoryImage !== '' &&
+        (
+            filter_var($inventoryImage, FILTER_VALIDATE_URL) === false ||
+            !in_array(
+                parse_url($inventoryImage, PHP_URL_SCHEME),
+                ['http', 'https'],
+                true
+            )
+        )
+    ) {
+        $errors[] = "Please enter a valid image URL.";
+    }
 
-    /*
-    | At this point, $sql is ONLY a PHP string.
-    |
-    | MySQL has not done anything yet.
-    |
-    | The ? symbols are placeholders. We will supply their values later.
-    |
-    | Prepared statements allow us to keep the SQL command separate from
-    | the data being inserted into it.
-    */
+    // ---------------------------------------------------------------------
+    // 4. INSERT THE NEW INVENTORY ITEM
+    // ---------------------------------------------------------------------
 
     if (count($errors) === 0) {
 
-        /*
-        | If your MySQL columns inv_taggable and inv_loose are TINYINT,
-        | MySQL stores Yes as 1 and No as 0.
-        |
-        | The form still shows the user Yes/No.
-        */
-
+        // Convert Yes/No into the integer values stored in MySQL.
         $taggableValue = ($inventoryTaggable === "Yes") ? 1 : 0;
         $looseValue = ($inventoryLoose === "Yes") ? 1 : 0;
 
+        // Convert numeric form values into integers.
+        $categoryValue = (int)$category_id;
+
+        // Only Camera items have a subcategory.
+        $subcategoryValue = ($category_id === "1")
+            ? (int)$subcategory_id
+            : null;
+
+        $quantityValue = (int)$inventoryQuantity;
+
         $sql = "INSERT INTO inv
-    (category_id, sub_id, inv_name, inv_ability, inv_quantity, inv_condition, inv_taggable, inv_notes, inv_loose, inv_image)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-           
-        // ---------------------------------------------------------------------
-        // 5. PREPARE THE SQL STATEMENT
-        // ---------------------------------------------------------------------
-
-        /*
-        | $conn came from db.php.
-        |
-        | -> is PHP's object operator.
-        |
-        | You can read this line approximately as:
-        |
-        | "Use the prepare method belonging to $conn and give it $sql."
-        |
-        | prepare() sends the SQL structure to MySQL so MySQL can prepare
-        | the command.
-        |
-        | The prepared statement is stored in $statement.
-        */
+                (category_id, sub_id, inv_name, inv_ability, inv_quantity,
+                 inv_condition, inv_taggable, inv_notes, inv_loose, inv_image)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $statement = $conn->prepare($sql);
-       
 
         if ($statement === false) {
             $errors[] = "The SQL statement could not be prepared.";
         } else {
-        
 
-
-            // ---------------------------------------------------------------------
-            // 6. BIND PHP VARIABLES TO THE ? PLACEHOLDERS
-            // ---------------------------------------------------------------------
-
-            /*
-            | bind_param() connects our PHP variables to the placeholders in SQL.
-            |
-            | The values are matched BY POSITION.
-            |
-            | First ?  → $category_id
-            | Second ? → $inventoryName
-            | Third ?  → $inventoryStatus
-            | ...and so on.
-            |
-            | The first argument is the TYPE STRING.
-            |
-            | Common mysqli types:
-            |
-            | i = integer
-            | d = decimal/double
-            | s = string
-            | b = binary/blob
-            |
-            | There must be one type letter for every variable being bound.
-            */
-
-            $categoryValue = (int)$category_id;
-            $subcategoryValue = ($category_id === "1")
-    ? (int)$subcategory_id
-    : null;
-            $quantityValue = (int)$inventoryQuantity;
-
-           $statement->bind_param(
-    'iissisisis',
-    $categoryValue,
-    $subcategoryValue,
-    $inventoryName,
-    $inventoryStatus,
-    $quantityValue,
-    $inventoryCondition,
-    $taggableValue,
-    $inventoryNotes,
-    $looseValue,
-    $inventoryImage
-);
-        
-
-            // ---------------------------------------------------------------------
-            // 7. EXECUTE THE STATEMENT
-            // ---------------------------------------------------------------------
-
-            /*
-            | prepare() prepared the SQL.
-            | bind_param() attached the values.
-            | execute() actually tells MySQL to run the statement.
-            |
-            | execute() returns true if it succeeds and false if it fails,
-            | so we can use it directly as the condition of an IF statement.
-            */
+            // The type letters match the ten values in the INSERT statement.
+            // i = integer; s = string.
+            $statement->bind_param(
+                'iissisisis',
+                $categoryValue,
+                $subcategoryValue,
+                $inventoryName,
+                $inventoryStatus,
+                $quantityValue,
+                $inventoryCondition,
+                $taggableValue,
+                $inventoryNotes,
+                $looseValue,
+                $inventoryImage
+            );
 
             if ($statement->execute()) {
-                $message = 'Inventory item saved.';
-                $successMessage = "The inventory item entry is valid and ready to be processed.";
+                $message = "Inventory item saved.";
             } else {
-                $message = 'The inventory item could not be saved.';
                 $errors[] = "Database error: " . $statement->error;
             }
-
-            // ---------------------------------------------------------------------
-            // 8. CLOSE THE PREPARED STATEMENT
-            // ---------------------------------------------------------------------
-
-            /*
-            | We are finished using this prepared statement, so we close it.
-            |
-            | Notice again that -> means we are calling a method that belongs
-            | to the $statement object.
-            */
 
             $statement->close();
         }
     }
 }
 
+// -------------------------------------------------------------------------
+// 5. HELPER FUNCTION FOR SAFE HTML OUTPUT
+// -------------------------------------------------------------------------
+
+function formValue($value)
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+
+// Display the subcategory name in the submitted-values section.
+$subcategoryDisplay = '';
+if (
+    $category_id === "1" &&
+    ctype_digit((string)$subcategory_id) &&
+    array_key_exists((int)$subcategory_id, $subcategories)
+) {
+    $subcategoryDisplay = $subcategories[(int)$subcategory_id];
+} elseif ($category_id !== "1") {
+    $subcategoryDisplay = "Not applicable";
+} else {
+    $subcategoryDisplay = "Not submitted";
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Application</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <header class="page-header">
-   <p> HillDay PR </p>
-    <h1> Inventory form </h1>
+<header class="page-header">
+    <p>HillDay PR</p>
+    <h1>Inventory Form</h1>
 </header>
-   <?php if ($message !== ''): ?>
+
+<?php if ($message !== ''): ?>
     <div class="message-box">
-        <p><?php echo htmlspecialchars($message); ?></p>
+        <p><?php echo formValue($message); ?></p>
     </div>
 <?php endif; ?>
 
-
-<h2 class="title"> Inventory Application</h2>
-    <div class="content-box">
+<div class="content-box">
     <h2>Enter Inventory Item</h2>
+
+    <?php if (count($errors) > 0): ?>
+        <div class="error-message">
+            <h3>Error Log:</h3>
+            <ul>
+                <?php foreach ($errors as $error): ?>
+                    <li><?php echo formValue($error); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
     <form method="POST" action="">
 
-<div class="select">
-    <label for="category_id">Category ID #:</label>
+        <!-- CATEGORY -->
+        <div class="select">
+            <label for="category_id">Category ID #:</label>
 
-    <select id="category_id" name="category_id"  class="colored-select"required>
-        <option value="">Choose a category</option>
+            <select
+                id="category_id"
+                name="category_id"
+                class="colored-select"
+                required
+            >
+                <option value="">Choose a category</option>
 
-        <option value="1"
-            <?php if ($category_id === "1") echo "selected"; ?>>
-            1 (Camera)
-        </option>
+                <?php foreach ($categories as $optionCategoryId => $categoryName): ?>
+                    <option
+                        value="<?php echo formValue($optionCategoryId); ?>"
+                        <?php if ($category_id === (string)$optionCategoryId) echo "selected"; ?>
+                    >
+                        <?php echo formValue($optionCategoryId . " (" . $categoryName . ")"); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
-        <option value="2"
-            <?php if ($category_id === "2") echo "selected"; ?>>
-            2 (AV)
-        </option>
+        <!-- CAMERA SUBCATEGORY -->
+        <div id="subcategory_container" style="display: none;">
+            <div class="select">
+                <label for="subcategory_id">Camera Subcategory:</label>
 
-        <option value="3"
-            <?php if ($category_id === "3") echo "selected"; ?>>
-            3 (IT)
-        </option>
-    </select>
-</div>
+                <select
+                    id="subcategory_id"
+                    name="subcategory_id"
+                    class="colored-select"
+                >
+                    <option value="">Choose a subcategory</option>
 
-<div id="subcategory_container" style="display: none;">
+                    <?php foreach ($subcategories as $subId => $subName): ?>
+                        <option
+                            value="<?php echo formValue($subId); ?>"
+                            <?php if ($subcategory_id === (string)$subId) echo "selected"; ?>
+                        >
+                            <?php echo formValue($subName); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
 
-    <div class="select">
-        <label for="subcategory_id">Camera Subcategory:</label>
+        <!-- SHOW THE SUBCATEGORY ONLY FOR CAMERA -->
+        <script>
+            const categoryDropdown = document.getElementById("category_id");
+            const subcategoryContainer = document.getElementById("subcategory_container");
+            const subcategoryDropdown = document.getElementById("subcategory_id");
 
-        <select  id="subcategory_id" name="subcategory_id" class="colored-select">
-            <option value="">Choose a subcategory</option>
-            <option value="1">Accessories</option>
-            <option value="2">Audio</option>
-            <option value="3">Lenses</option>
-            <option value="4">Lighting</option>
-            <option value="5">Camera Bodies</option>
-        </select>
-    </div>
+            function updateSubcategory() {
+                if (categoryDropdown.value === "1") {
+                    subcategoryContainer.style.display = "block";
+                    subcategoryDropdown.required = true;
+                } else {
+                    subcategoryContainer.style.display = "none";
+                    subcategoryDropdown.required = false;
+                    subcategoryDropdown.value = "";
+                }
+            }
 
-</div>
-<script>
-   const categoryDropdown = document.getElementById("category_id");
-const subcategoryContainer = document.getElementById("subcategory_container");
-const subcategoryDropdown = document.getElementById("subcategory_id");
-
-function updateSubcategory() {
-
-    if (categoryDropdown.value === "1") {
-        subcategoryContainer.style.display = "block";
-        subcategoryDropdown.required = true;
-    } else {
-        subcategoryContainer.style.display = "none";
-        subcategoryDropdown.required = false;
-        subcategoryDropdown.value = "";
-    }
-
-}
-
-categoryDropdown.addEventListener("change", updateSubcategory);
-
-// Run when the page loads
-updateSubcategory();
-</script>
+            categoryDropdown.addEventListener("change", updateSubcategory);
+            updateSubcategory();
+        </script>
 
         <br><br>
-<div class="typing">
-        <label for="inv_name">Item Name:</label>
-        <input class="colored-type"
-          type="text"
-            id="inv_name"
-            name="inv_name"
-             class="typing"
-            value="<?php echo htmlspecialchars($inventoryName === "Not Submitted" ? "" : $inventoryName); ?>"
-        >
-</div>
+
+        <!-- ITEM NAME -->
+        <div class="typing">
+            <label for="inv_name">Item Name:</label>
+            <input
+                class="colored-type"
+                type="text"
+                id="inv_name"
+                name="inv_name"
+                required
+                value="<?php echo formValue($inventoryName); ?>"
+            >
+        </div>
+
         <br><br>
-<div class="select">
-        <label for="inv_ability">Working or not?:</label>
 
-        <select class="colored-select" id="inv_ability" name="inv_ability">
-            <option value="">Choose a status</option>
+        <!-- INVENTORY STATUS -->
+        <div class="select">
+            <label for="inv_ability">Working or not?:</label>
 
-            <option value="Not tested"
-                <?php if ($inventoryStatus === "Not tested") { echo "selected"; } ?>>
-                Not tested
-            </option>
+            <select
+                class="colored-select"
+                id="inv_ability"
+                name="inv_ability"
+                required
+            >
+                <option value="">Choose a status</option>
 
-            <option value="Partially working"
-                <?php if ($inventoryStatus === "Partially working") { echo "selected"; } ?>>
-                Partially working
-            </option>
+                <?php foreach ($allowedAbility as $ability): ?>
+                    <option
+                        value="<?php echo formValue($ability); ?>"
+                        <?php if ($inventoryStatus === $ability) echo "selected"; ?>
+                    >
+                        <?php echo formValue($ability); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
-            <option value="Working"
-                <?php if ($inventoryStatus === "Working") { echo "selected"; } ?>>
-                Working
-            </option>
-
-            <option value="Not working"
-                <?php if ($inventoryStatus === "Not working") { echo "selected"; } ?>>
-                Not working
-            </option>
-        </select>
-    </div>
         <br><br>
-<div class="typing">
-        <label for="inv_quantity">Quantity:</label>
-        <input class="colored-type"
-            type="number"
-            id="inv_quantity"
-            name="inv_quantity"
-            step="1"
-            min="0"
-             class="typing"
-            value="<?php echo htmlspecialchars($inventoryQuantity === "Not Submitted" ? "" : $inventoryQuantity); ?>"
-        >
-</div>
+
+        <!-- QUANTITY -->
+        <div class="typing">
+            <label for="inv_quantity">Quantity:</label>
+            <input
+                class="colored-type"
+                type="number"
+                id="inv_quantity"
+                name="inv_quantity"
+                min="0"
+                step="1"
+                required
+                value="<?php echo formValue($inventoryQuantity); ?>"
+            >
+        </div>
+
         <br><br>
-<div class="select">
-        <label for="inv_condition">Item Condition:</label>
 
-        <select class="colored-select" id="inv_condition" name="inv_condition">
-            <option value="">Choose a condition</option>
+        <!-- CONDITION -->
+        <div class="select">
+            <label for="inv_condition">Item Condition:</label>
 
-            <option value="Fair"
-                <?php if ($inventoryCondition === "Fair") { echo "selected"; } ?>>
-                Fair
-            </option>
+            <select
+                class="colored-select"
+                id="inv_condition"
+                name="inv_condition"
+                required
+            >
+                <option value="">Choose a condition</option>
 
-            <option value="Poor"
-                <?php if ($inventoryCondition === "Poor") { echo "selected"; } ?>>
-                Poor
-            </option>
+                <?php foreach ($allowedCondition as $condition): ?>
+                    <option
+                        value="<?php echo formValue($condition); ?>"
+                        <?php if ($inventoryCondition === $condition) echo "selected"; ?>
+                    >
+                        <?php echo formValue($condition); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
-            <option value="Good"
-                <?php if ($inventoryCondition === "Good") { echo "selected"; } ?>>
-                Good
-            </option>
-
-            <option value="New"
-                <?php if ($inventoryCondition === "New") { echo "selected"; } ?>>
-                New
-            </option>
-        </select>
-    </div>
         <br><br>
-<div class="drop">
-        <label>Is it taggable?</label>
-        <br>
 
-        <input 
-        type="radio"
-            name="inv_taggable"
-            value="Yes"
-            <?php if ($inventoryTaggable === "Yes") { echo "checked"; } ?>
-        >
-        Yes
+        <!-- TAGGABLE -->
+        <div class="drop">
+            <label>Is it taggable?</label>
+            <br>
 
-        <br>
+            <?php foreach ($isTaggable as $taggableOption): ?>
+                <input
+                    type="radio"
+                    name="inv_taggable"
+                    value="<?php echo formValue($taggableOption); ?>"
+                    <?php if ($inventoryTaggable === $taggableOption) echo "checked"; ?>
+                    required
+                >
+                <?php echo formValue($taggableOption); ?>
+                <br>
+            <?php endforeach; ?>
+        </div>
 
-        <input
-            type="radio"
-            name="inv_taggable"
-            value="No"
-            <?php if ($inventoryTaggable === "No") { echo "checked"; } ?>
-        >
-        No
-    </div>
         <br><br>
-<div class="drop">
-        <label>Is it loose?</label>
-        <br>
 
-        <input
-            type="radio"
-            name="inv_loose"
-            value="Yes"
-            <?php if ($inventoryLoose === "Yes") { echo "checked"; } ?>
-        >
-        Yes
+        <!-- LOOSE -->
+        <div class="drop">
+            <label>Is it loose?</label>
+            <br>
 
-        <br>
+            <?php foreach ($isLoose as $looseOption): ?>
+                <input
+                    type="radio"
+                    name="inv_loose"
+                    value="<?php echo formValue($looseOption); ?>"
+                    <?php if ($inventoryLoose === $looseOption) echo "checked"; ?>
+                    required
+                >
+                <?php echo formValue($looseOption); ?>
+                <br>
+            <?php endforeach; ?>
+        </div>
 
-        <input
-            type="radio"
-            name="inv_loose"
-            value="No"
-            <?php if ($inventoryLoose === "No") { echo "checked"; } ?>
-        >
-        No
-    </div>
         <br><br>
-<div class="typing">
-        <label for="inv_notes">Notes:</label>
-        <br>
 
-        <textarea class="colored-type"
-            id="inv_notes"
-            name="inv_notes"
-            rows="5"
-            cols="50"
-             class="typing"
-        ><?php echo htmlspecialchars($inventoryNotes === "None" ? "" : $inventoryNotes); ?></textarea>
-</div>
+        <!-- NOTES -->
+        <div class="typing">
+            <label for="inv_notes">Notes:</label>
+            <br>
+            <textarea
+                class="colored-type"
+                id="inv_notes"
+                name="inv_notes"
+                rows="5"
+                cols="50"
+            ><?php echo formValue($inventoryNotes); ?></textarea>
+        </div>
+
         <br><br>
-<div class="typing">
-        <label for="inv_image">Image URL:</label>
-        <input class="colored-type"
-            type="url"
-            id="inv_image"
-            name="inv_image"
-             class="typing"
-            placeholder="https://example.com/image.jpg"
-            value="<?php echo htmlspecialchars($inventoryImage === "Not Submitted" ? "" : $inventoryImage); ?>"
-        >
-</div>
+
+        <!-- IMAGE URL -->
+        <div class="typing">
+            <label for="inv_image">Image URL:</label>
+            <input
+                class="colored-type"
+                type="url"
+                id="inv_image"
+                name="inv_image"
+                placeholder="https://example.com/image.jpg"
+                value="<?php echo formValue($inventoryImage); ?>"
+            >
+        </div>
+
         <br><br>
 
         <button type="submit">Add Item</button>
 
-      </form>
+    </form>
 </div>
 
+<!-- DISPLAY THE SUBMITTED VALUES -->
 <div class="content-box submitted-box">
-
     <h2>Submitted Values</h2>
 
-    <p>Item Name: <?php echo htmlspecialchars($inventoryName); ?></p>
+    <p>Item Name: <?php echo formValue($inventoryName !== '' ? $inventoryName : "Not Submitted"); ?></p>
+    <p>Category: <?php
+        echo formValue(
+            array_key_exists($category_id, $categories)
+                ? $category_id . " (" . $categories[$category_id] . ")"
+                : "Not Submitted"
+        );
+    ?></p>
+    <p>Subcategory: <?php echo formValue($subcategoryDisplay); ?></p>
+    <p>Ability: <?php echo formValue($inventoryStatus !== '' ? $inventoryStatus : "Not Submitted"); ?></p>
+    <p>Quantity: <?php echo formValue($inventoryQuantity !== '' ? $inventoryQuantity : "Not Submitted"); ?></p>
+    <p>Condition: <?php echo formValue($inventoryCondition !== '' ? $inventoryCondition : "Not Submitted"); ?></p>
+    <p>Taggability: <?php echo formValue($inventoryTaggable !== '' ? $inventoryTaggable : "Not Submitted"); ?></p>
+    <p>Loose: <?php echo formValue($inventoryLoose !== '' ? $inventoryLoose : "Not Submitted"); ?></p>
+    <p>Notes: <?php echo formValue($inventoryNotes !== '' ? $inventoryNotes : "None"); ?></p>
 
-    <p>Category ID #: <?php echo htmlspecialchars($category_id); ?></p>
-   
-    <p>Subcategory ID: <?php echo htmlspecialchars((string)$subcategory_id); ?></p>
+    <p>Image:</p>
 
-    <p>Ability: <?php echo htmlspecialchars($inventoryStatus); ?></p>
-
-    <p>Quantity: <?php echo htmlspecialchars((string)$inventoryQuantity); ?></p>
-
-    <p>Condition: <?php echo htmlspecialchars($inventoryCondition); ?></p>
-
-    <p>Taggability:<?php echo htmlspecialchars($inventoryTaggable); ?></p>
-
-    <p>Notes: <?php echo htmlspecialchars($inventoryNotes); ?></p>
-
-    <p>Loose: <?php echo htmlspecialchars($inventoryLoose); ?></p>
-
-    
-<p>Image:</p>
-
-<?php if (
-    filter_var($inventoryImage, FILTER_VALIDATE_URL) &&
-    in_array(parse_url($inventoryImage, PHP_URL_SCHEME), ['http', 'https'], true)
-) { ?>
-    <img
-        src="<?php echo htmlspecialchars($inventoryImage); ?>"
-        alt="Inventory item"
-        width="200"
-    >
-<?php } else { ?>
-    <p>No valid image URL provided.</p>
-<?php } ?>
-
-   </div>
-    <?php if (count($errors) > 0) { ?>
-
-        <h3>Error Log:</h3>
-
-        <ul>
-
-            <?php foreach ($errors as $error) { ?>
-
-                <li><?php echo htmlspecialchars($error); ?></li>
-
-            <?php } ?>
-
-        </ul>
-
-    <?php } ?>
+    <?php if (
+        filter_var($inventoryImage, FILTER_VALIDATE_URL) &&
+        in_array(parse_url($inventoryImage, PHP_URL_SCHEME), ['http', 'https'], true)
+    ): ?>
+        <img
+            src="<?php echo formValue($inventoryImage); ?>"
+            alt="Inventory item"
+            width="200"
+        >
+    <?php else: ?>
+        <p>No valid image URL provided.</p>
+    <?php endif; ?>
+</div>
 
 </body>
 </html>
