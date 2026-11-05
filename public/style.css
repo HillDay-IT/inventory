@@ -271,12 +271,14 @@ p{
     text-align: left;
     vertical-align: middle;
     overflow-wrap: anywhere;
+    font-family: Arial, sans-serif;
 }
 
 .inventory-table th {
     color: white;
     background-color: rgb(33, 37, 41);
     white-space: nowrap;
+    font-family: Arial, sans-serif;
 }
 
 .inventory-table tbody tr:nth-child(even) {
