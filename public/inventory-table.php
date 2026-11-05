@@ -86,22 +86,23 @@ if (isset($_GET['deleted'])) {
 $sql = $primaryKey === ''
     ? ''
     : "SELECT
-    `inv`.`{$primaryKey}` AS row_id,
-    inv.category_id,
-    inv.sub_id,
-    s.subcat_name,
-    inv.inv_name,
-    inv.inv_ability,
-    inv.inv_quantity,
-    inv.inv_condition,
-    inv.inv_taggable,
-    inv.inv_notes,
-    inv.inv_loose,
-    inv.inv_image
-FROM inv
-LEFT JOIN inventory_subcat AS s
-    ON inv.sub_id = s.id
-ORDER BY inv.inv_name ASC;";
+        inv.`{$primaryKey}` AS row_id,
+        inv.category_id,
+        inv.sub_id,
+        s.subcat_name,
+        inv.inv_name,
+        inv.inv_ability,
+        inv.inv_quantity,
+        inv.inv_condition,
+        inv.inv_taggable,
+        inv.inv_notes,
+        inv.inv_loose,
+        inv.inv_image
+    FROM inv
+    LEFT JOIN inventory_subcat AS s
+        ON inv.sub_id = s.id
+        AND inv.category_id = s.invcat_id
+    ORDER BY inv.inv_name ASC";
 $result = $sql === '' ? false : $conn->query($sql);
 
 if ($result === false) {
@@ -199,8 +200,19 @@ function isValidImageUrl($url)
                     <tbody>
                         <?php foreach ($inventoryItems as $item): ?>
                             <tr>
-                                <td><?php echo displayValue($categoryNames[(string)$item['category_id']] ?? 'Unknown'); ?></td>
-                                <td><?php echo displayValue($subidentifier[(string)$item['sub_id']] ?? 'Unknown'); ?></td>
+                               <td>
+    <?php
+    echo displayValue(
+        $categoryNames[(string)$item['category_id']] ?? 'Unknown'
+    );
+    ?>
+</td>
+
+<td>
+    <?php
+    echo displayValue($item['subcat_name'] ?? '—');
+    ?>
+</td>
                                 <td><?php echo displayValue($item['inv_name']); ?></td>
                                 <td><?php echo displayValue($item['inv_ability']); ?></td>
                                 <td><?php echo displayValue($item['inv_quantity']); ?></td>
