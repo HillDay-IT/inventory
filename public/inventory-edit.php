@@ -57,7 +57,8 @@ require __DIR__ . '/../config/db.php';
 $categories = [
     "1" => "Camera",
     "2" => "AV",
-    "3" => "IT"
+    "3" => "IT",
+    "4" => "General"
 ];
 
 $subcategories = [
@@ -65,7 +66,20 @@ $subcategories = [
     2 => "Audio",
     3 => "Lenses",
     4 => "Lighting",
-    5 => "Camera Bodies"
+    5 => "Camera Bodies",
+     6 => "Devices",
+    7 => "Computer Accessories",
+    8 => "Cables & Power",
+    9 => "MISC",
+    10 => "Audio",
+    11 => "Lighting",
+    12 => "Displays & Staging",
+    13 => "Cables & Accessories"
+];
+$subcategoryIdsByCategory = [
+    '1' => [1, 2, 3, 4, 5],
+    '2' => [10, 11, 12, 13],
+    '3' => [6, 7, 8, 9]
 ];
 
 $allowedAbility = [
@@ -278,7 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $inventoryItem !== null) {
 
     $inventoryItem = [
         'category_id' => $category_id,
-        'subcategory_name' => $subcategory_id,
+        'sub_id' => $subcategory_id,
         'inv_name' => $inventoryName,
         'inv_ability' => $inventoryStatus,
         'inv_quantity' => $inventoryQuantity,
@@ -340,21 +354,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $inventoryItem !== null) {
 
 
     // Validate camera subcategory.
+ // Validate subcategory.
 
-    if ($category_id === "1") {
+if (array_key_exists($category_id, $subcategoryIdsByCategory)) {
 
-        if (
-            !ctype_digit($subcategory_id) ||
-            !array_key_exists((int)$subcategory_id, $subcategories)
-        ) {
-
-            $errors[] = "Please choose a valid camera subcategory.";
-
-        }
-
+    if (
+        !ctype_digit((string)$subcategory_id) ||
+        !in_array(
+            (int)$subcategory_id,
+            $subcategoryIdsByCategory[$category_id],
+            true
+        )
+    ) {
+        $errors[] = "Please choose a valid subcategory for the selected category.";
     }
 
-
+}
     // Validate inventory status.
 
     if (!in_array($inventoryStatus, $allowedAbility, true)) {
@@ -448,7 +463,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $inventoryItem !== null) {
 
         $categoryValue = (int)$category_id;
 
-        $subcategoryValue = ($category_id === "1")
+        $subcategoryValue = array_key_exists($category_id, $subcategoryIdsByCategory)
             ? (int)$subcategory_id
             : null;
 
@@ -608,36 +623,28 @@ function editValue($value)
 
     </header>
 
-
+<?php if ($message !== ''): ?>
+    <div class="message-box">
+        <p><?php echo editValue($message); ?></p>
+    </div>
+<?php endif; ?>
     <div class="content-box">
 
         <h2>Edit Inventory Item</h2>
 
 
-        <?php if (count($errors) > 0): ?>
+     <?php if (count($errors) > 0): ?>
+        <div class="error-message">
+            <h3>Error Log:</h3>
+            <ul>
+                <?php foreach ($errors as $error): ?>
+                    <li><?php echo editValue($error); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-            <div class="error-message">
-
-                <h3>Error Log:</h3>
-
-                <ul>
-
-                    <?php foreach ($errors as $error): ?>
-
-                        <li><?php echo editValue($error); ?></li>
-
-                    <?php endforeach; ?>
-
-                </ul>
-
-            </div>
-
-        <?php endif; ?>
-
-
-        <?php if ($inventoryItem !== null): ?>
-
-
+<?php if ($inventoryItem !== null): ?>
         <form method="POST" action="inventory-edit.php">
 
 
@@ -728,35 +735,38 @@ function editValue($value)
 
 
                 function updateSubcategory() {
+                    const subcategoryIdsByCategory = {
+                    "1": ["1", "2", "3", "4", "5"],
+                    "2": ["10", "11", "12", "13"],
+                    "3": ["6", "7", "8", "9"]
+                };
 
-                    if (categoryDropdown.value === "1") {
+                   const allowedSubcategoryIds = subcategoryIdsByCategory[categoryDropdown.value] || [];
+                const isSubcategoryCategory = allowedSubcategoryIds.length > 0;
 
-                        subcategoryContainer.style.display = "block";
-
-                        subcategoryDropdown.required = true;
-
-                    } else {
-
-                        subcategoryContainer.style.display = "none";
-
-                        subcategoryDropdown.required = false;
-
-                        subcategoryDropdown.value = "";
-
+                Array.from(subcategoryDropdown.options).forEach((option) => {
+                    if (option.value !== "") {
+                        option.hidden = !allowedSubcategoryIds.includes(option.value);
                     }
+                });
 
+                if (!allowedSubcategoryIds.includes(subcategoryDropdown.value)) {
+                    subcategoryDropdown.value = "";
                 }
 
+                if (isSubcategoryCategory) {
+                    subcategoryContainer.style.display = "block";
+                    subcategoryDropdown.required = true;
+                } else {
+                    subcategoryContainer.style.display = "none";
+                    subcategoryDropdown.required = false;
+                    subcategoryDropdown.value = "";
+                }
+            }
 
-                categoryDropdown.addEventListener("change", updateSubcategory);
-
-
-                // Run when the page loads.
-
-                updateSubcategory();
-
-            </script>
-
+            categoryDropdown.addEventListener("change", updateSubcategory);
+            updateSubcategory();
+        </script>
 
             <br><br>
 

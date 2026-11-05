@@ -11,13 +11,22 @@ $categoryNames = [
     '1' => 'Camera',
     '2' => 'AV',
     '3' => 'IT',
+    '4' => 'General'
 ];
 $subidentifier = [
     '1' => "Accessories",
     '2' => "Audio",
     '3' => "Lenses",
     '4' => "Lighting",
-    '5' => "Camera Bodies"
+    '5' => "Camera Bodies",
+     '6' => "Devices",
+    '7' => "Computer Accessories",
+    '8' => "Cables & Power",
+    '9' => "MISC",
+    '10' => "Audio",
+    '11' => "Lighting",
+    '12' => "Displays & Staging",
+    '13' => "Cables & Accessories"
 ];
 if (!isset($_SESSION['inventory_csrf_token'])) {
     $_SESSION['inventory_csrf_token'] = bin2hex(random_bytes(32));

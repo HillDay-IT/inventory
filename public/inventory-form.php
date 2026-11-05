@@ -21,7 +21,8 @@ require __DIR__ . '/../config/db.php';
 $categories = [
     "1" => "Camera",
     "2" => "AV",
-    "3" => "IT"
+    "3" => "IT",
+    "4" => "General"
 ];
 
 $subcategories = [
@@ -29,7 +30,22 @@ $subcategories = [
     2 => "Audio",
     3 => "Lenses",
     4 => "Lighting",
-    5 => "Camera Bodies"
+    5 => "Camera Bodies",
+    6 => "Devices",
+    7 => "Computer Accessories",
+    8 => "Cables & Power",
+    9 => "MISC",
+    10 => "Audio",
+    11 => "Lighting",
+    12 => "Displays & Staging",
+    13 => "Cables & Accessories"
+
+];
+
+$subcategoryIdsByCategory = [
+    '1' => [1, 2, 3, 4, 5],
+    '2' => [10, 11, 12, 13],
+    '3' => [6, 7, 8, 9]
 ];
 
 $allowedAbility = [
@@ -64,7 +80,7 @@ $errors = [];
 $message = '';
 
 $category_id = '';
-$sub_id = '';
+$subcategory_id = '';
 $inventoryName = '';
 $inventoryStatus = '';
 $inventoryQuantity = '';
@@ -88,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $inventoryQuantity = trim($_POST['inv_quantity'] ?? '');
     $inventoryCondition = $_POST['inv_condition'] ?? '';
     $inventoryTaggable = $_POST['inv_taggable'] ?? '';
+     $inventoryNotes = trim($_POST['inv_notes'] ?? '');
     $inventoryLoose = $_POST['inv_loose'] ?? '';
-    $inventoryNotes = trim($_POST['inv_notes'] ?? '');
     $inventoryImage = trim($_POST['inv_image'] ?? '');
 
     // Validate category.
@@ -97,13 +113,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Please choose a valid category.";
     }
 
-    // A subcategory is required only when Camera is selected.
-    if ($category_id === "1") {
+    // Require a subcategory from the selected category's group.
+    if (array_key_exists($category_id, $subcategoryIdsByCategory)) {
         if (
             !ctype_digit((string)$subcategory_id) ||
-            !array_key_exists((int)$subcategory_id, $subcategories)
+            !in_array((int)$subcategory_id, $subcategoryIdsByCategory[$category_id], true)
         ) {
-            $errors[] = "Please choose a valid camera subcategory.";
+            $errors[] = "Please choose a valid subcategory for the selected category.";
         }
     }
 
@@ -167,8 +183,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Convert numeric form values into integers.
         $categoryValue = (int)$category_id;
 
-        // Only Camera items have a subcategory.
-        $subcategoryValue = ($category_id === "1")
+        // Categories 1, 2, and 3 have subcategories.
+        $subcategoryValue = array_key_exists($category_id, $subcategoryIdsByCategory)
             ? (int)$subcategory_id
             : null;
 
@@ -224,12 +240,12 @@ function formValue($value)
 // Display the subcategory name in the submitted-values section.
 $subcategoryDisplay = '';
 if (
-    $category_id === "1" &&
+    array_key_exists($category_id, $subcategoryIdsByCategory) &&
     ctype_digit((string)$subcategory_id) &&
-    array_key_exists((int)$subcategory_id, $subcategories)
+    in_array((int)$subcategory_id, $subcategoryIdsByCategory[$category_id], true)
 ) {
     $subcategoryDisplay = $subcategories[(int)$subcategory_id];
-} elseif ($category_id !== "1") {
+} elseif (!array_key_exists($category_id, $subcategoryIdsByCategory)) {
     $subcategoryDisplay = "Not applicable";
 } else {
     $subcategoryDisplay = "Not submitted";
@@ -321,14 +337,33 @@ if (
             </div>
         </div>
 
-        <!-- SHOW THE SUBCATEGORY ONLY FOR CAMERA -->
+        <!-- SHOW THE SUBCATEGORY FOR CATEGORIES 1, 2, AND 3 -->
         <script>
             const categoryDropdown = document.getElementById("category_id");
             const subcategoryContainer = document.getElementById("subcategory_container");
             const subcategoryDropdown = document.getElementById("sub_id");
 
             function updateSubcategory() {
-                if (categoryDropdown.value === "1") {
+                const subcategoryIdsByCategory = {
+                    "1": ["1", "2", "3", "4", "5"],
+                    "2": ["10", "11", "12", "13"],
+                    "3": ["6", "7", "8", "9"]
+                };
+
+                const allowedSubcategoryIds = subcategoryIdsByCategory[categoryDropdown.value] || [];
+                const isSubcategoryCategory = allowedSubcategoryIds.length > 0;
+
+                Array.from(subcategoryDropdown.options).forEach((option) => {
+                    if (option.value !== "") {
+                        option.hidden = !allowedSubcategoryIds.includes(option.value);
+                    }
+                });
+
+                if (!allowedSubcategoryIds.includes(subcategoryDropdown.value)) {
+                    subcategoryDropdown.value = "";
+                }
+
+                if (isSubcategoryCategory) {
                     subcategoryContainer.style.display = "block";
                     subcategoryDropdown.required = true;
                 } else {
