@@ -556,6 +556,7 @@ if (
     <p>Loose: <?php echo formValue($inventoryLoose !== '' ? $inventoryLoose : "Not Submitted"); ?></p>
     <p>Notes: <?php echo formValue($inventoryNotes !== '' ? $inventoryNotes : "None"); ?></p>
 
+   <div style="display: flex; align-items: center; gap: 10px;">
     <p>Image:</p>
 
     <?php if (
@@ -571,6 +572,5 @@ if (
         <p>No valid image URL provided.</p>
     <?php endif; ?>
 </div>
-
 </body>
 </html>
