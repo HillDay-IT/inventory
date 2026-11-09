@@ -20,8 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $staff_first = $_POST['staff_first'] ?? '';
      $staff_last = $_POST['staff_last'] ?? '';
     $staff_email = $_POST['staff_email'] ?? '';
-$checkoutDate = str_replace('T', ' ', $_POST['checkout_date'] ?? '');
-$checkinDate = str_replace('T', ' ', $_POST['checkin_date'] ?? '');
+
  if ($staff_first === '') {
         $errors[] = "Staff first name is required.";
     }
@@ -31,65 +30,65 @@ if ($staff_last === '') {
     if ($staff_email === '') {
         $errors[] = "Staff email address is required.";
     }
+$checkoutDate = !empty($_POST['checkout_date'])
+    ? str_replace('T', ' ', $_POST['checkout_date']) . ':00'
+    : '';
 
-   if ($checkinDate === '') {
-        $errors[] = "Check-in date is required.";
-    }
+$checkinDate = !empty($_POST['checkin_date'])
+    ? str_replace('T', ' ', $_POST['checkin_date']) . ':00'
+    : '';
 
-    if ($checkoutDate === '') {
-        $errors[] = "Check-out date is required";
-    }
+if ($checkinDate === '') {
+    $errors[] = "Check-in date is required.";
+}
+
+if ($checkoutDate === '') {
+    $errors[] = "Check-out date is required.";
+}
+  
 
 
     if (count($errors) === 0) {
-
-}
-
-    
-   
-
-
-$sql = "SELECT staffid FROM tblstaff
-        WHERE firstname = ?  AND lastname = ? AND email= ?";
-
-
-$statement = $conn->prepare($sql);
-$statement->bind_param('sss', $staff_first, $staff_last, $staff_email);
-$statement->execute();
-
-$result = $statement->get_result();
-$staff = $result->fetch_assoc();
-
-if ($staff === null) {
-    $errors[] = "No staff member matched that name and email.";
-} else {
-    $staff_id = (int)$staff['staffid'];
-}
-
-if ($staff_first===$staff_first ) {
-    $errors[] = "No staff member matched that name and email.";
-} else {
-    $staff_id = (int)$staff['staffid'];
-}
-
-$statement->close();
-        $sql = "INSERT INTO inv_reserve
-                (staffid, checkout_date, checkin_date)
-                VALUES (?, ?, ?)";
-
+        $sql = "SELECT staffid FROM tblstaff
+                WHERE firstname = ? AND lastname = ? AND email = ?";
         $statement = $conn->prepare($sql);
 
         if ($statement === false) {
-            $errors[] = "The SQL statement could not be prepared.";
+            $errors[] = "Could not prepare the staff lookup.";
         } else {
+            $statement->bind_param('sss', $staff_first, $staff_last, $staff_email);
 
-            // The type letters match the ten values in the INSERT statement.
-            // i = integer; s = string.
+            if (!$statement->execute()) {
+                $errors[] = "Could not search the staff records.";
+            } else {
+                $result = $statement->get_result();
+                $staff = $result->fetch_assoc();
+
+                if ($staff === null) {
+                    $errors[] = "No staff member matched that name and email.";
+                } else {
+                    $staff_id = (int)$staff['staffid'];
+                }
+            }
+
+            $statement->close();
+        }
+    }
+
+    if (count($errors) === 0) {
+        $sql = "INSERT INTO inv_reserve
+                (staffid, checkout_date, checkin_date)
+                VALUES (?, ?, ?)";
+        $statement = $conn->prepare($sql);
+
+        if ($statement === false) {
+            $errors[] = "The reservation statement could not be prepared.";
+        } else {
             $statement->bind_param(
                 'iss',
                 $staff_id,
-                $checkinDate,
                 $checkoutDate,
+                $checkinDate
             );
 
             if ($statement->execute()) {
@@ -101,7 +100,7 @@ $statement->close();
             $statement->close();
         }
     }
-
+}
 
 function reserveValue($value)
 {
@@ -183,7 +182,7 @@ function reserveValue($value)
             <label for="staff_email">Email Address:</label>
             <input
                 class="colored-type"
-                type="text"
+                type="email"
                 id="staff_email"
                 name="staff_email"
                 required
