@@ -193,7 +193,7 @@ function reserveValue($value)
         <br><br>
 
         
-<label class="typing" for="checkout_date">Checkout date and time:</label>
+<label class="typing" for="checkout_date">Check-out date and time:</label>
 <input class="colored-type" type="datetime-local" id="checkout_date" name="checkout_date" required>
 
 <br><br>
