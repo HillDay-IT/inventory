@@ -1,5 +1,30 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| NEXT DEVELOPMENT GOAL: PREPARE THE RESERVATION HANDOFF
+|--------------------------------------------------------------------------
+|
+| This page should eventually complete one job:
+|
+| 1. Validate the reservation information.
+| 2. Insert one parent record into inv_reserve.
+| 3. Retrieve the AUTO_INCREMENT ID created by that INSERT.
+| 4. Redirect to the inventory-selection page with that ID.
+|
+| Do not start saving selected inventory here. This page creates the parent
+| reservation; the next page creates the related item records.
+|
+| SCHEMA ITEMS TO INVESTIGATE BEFORE CHANGING THE INSERT
+|
+| - The provided inv_reserve schema uses staff_id, but the current INSERT
+|   below uses staffid.
+| - The schema requires checkin_date to be at or after checkout_date.
+|
+| These are intentional TODOs for the next revision of this form.
+|
+*/
+
 require __DIR__ . '/../config/db.php';
 
 
@@ -45,6 +70,14 @@ if ($checkinDate === '') {
 if ($checkoutDate === '') {
     $errors[] = "Check-out date is required.";
 }
+
+/*
+| TODO: Add a validation rule comparing the two dates.
+|
+| The reservation should not continue when check-in is earlier than
+| check-out. This PHP validation supports the CHECK constraint in MySQL and
+| gives the user a clearer error before the INSERT is attempted.
+*/
   
 
 
@@ -76,6 +109,13 @@ if ($checkoutDate === '') {
     }
 
     if (count($errors) === 0) {
+        /*
+        | TODO: Compare these column names with SHOW CREATE TABLE inv_reserve.
+        |
+        | The supplied schema uses staff_id. Update the INSERT column and make
+        | sure the columns, placeholders, bind types, and bound variables stay
+        | in the same order.
+        */
         $sql = "INSERT INTO inv_reserve
                 (staffid, checkout_date, checkin_date)
                 VALUES (?, ?, ?)";
@@ -93,6 +133,30 @@ if ($checkoutDate === '') {
 
             if ($statement->execute()) {
                 $message = "User information has been stored";
+
+                /*
+                | TODO: Replace the success message with the handoff.
+                |
+                | After a successful INSERT, $statement->insert_id contains
+                | the new inv_reserve AUTO_INCREMENT ID. Capture it before
+                | another INSERT uses this database connection.
+                |
+                | The future code will follow this shape:
+                |
+                | $reservationId = $statement->insert_id;
+                | $statement->close();
+                | header(
+                |     'Location: inventory-reserveitems-training.php?reservation_id=' .
+                |     urlencode((string)$reservationId)
+                | );
+                | exit;
+                |
+                | Why exit? header() tells the browser where to go next, and
+                | exit prevents the rest of this page from continuing to run.
+                |
+                | Be careful: the code above closes the statement, so the
+                | existing close() after this block would also need adjusting.
+                */
             } else {
                 $errors[] = "Database error: " . $statement->error;
             }
