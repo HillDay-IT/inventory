@@ -24,7 +24,7 @@
 | These are intentional TODOs for the next revision of this form.
 |
 */
-
+session_start();
 require __DIR__ . '/../config/db.php';
 
 
@@ -71,14 +71,11 @@ if ($checkoutDate === '') {
     $errors[] = "Check-out date is required.";
 }
 
-/*
-| TODO: Add a validation rule comparing the two dates.
-|
-| The reservation should not continue when check-in is earlier than
-| check-out. This PHP validation supports the CHECK constraint in MySQL and
-| gives the user a clearer error before the INSERT is attempted.
-*/
-  
+if ($checkoutDate !== '' && $checkinDate !== '') {
+    if (strtotime($checkinDate) < strtotime($checkoutDate)) {
+        $errors[] = "Check-in date cannot be earlier than check-out date.";
+    }
+}
 
 
     if (count($errors) === 0) {
@@ -132,7 +129,23 @@ if ($checkoutDate === '') {
             );
 
             if ($statement->execute()) {
-                $message = "User information has been stored";
+
+     $reservationId = $statement->insert_id;
+
+    
+    $statement->close();
+
+    
+    header(
+        'Location: inventory-reserveitems-training.php?reservation_id=' .
+        urlencode((string)$reservationId)
+    );
+
+    exit;
+
+} else {
+    $errors[] = "Database error: " . $statement->error;
+}
 
                 /*
                 | TODO: Replace the success message with the handoff.
@@ -157,9 +170,7 @@ if ($checkoutDate === '') {
                 | Be careful: the code above closes the statement, so the
                 | existing close() after this block would also need adjusting.
                 */
-            } else {
-                $errors[] = "Database error: " . $statement->error;
-            }
+    
 
             $statement->close();
         }
